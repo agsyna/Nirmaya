@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+python-multipart
+supabase
+pytesseract
+spacy
+chromadb
+langchain
+ollama
+python-dotenv
+pandas
+xgboost
+scikit-learn
+pdf2image
