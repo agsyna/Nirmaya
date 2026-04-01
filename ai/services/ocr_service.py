@@ -8,8 +8,13 @@ import io
 load_dotenv()
 
 # Configure Tesseract path for Windows
-TESSERACT_CMD = os.getenv("TESSERACT_CMD", r"C:\Program Files\Tesseract-OCR\tesseract.exe")
+_default_path = os.path.join("C:", os.sep, "Program Files", "Tesseract-OCR", "tesseract.exe")
+TESSERACT_CMD = os.getenv("TESSERACT_CMD", _default_path)
+# Verify file exists, fallback to default if env var was mangled
+if not os.path.isfile(TESSERACT_CMD):
+    TESSERACT_CMD = _default_path
 pytesseract.pytesseract.tesseract_cmd = TESSERACT_CMD
+print(f"Tesseract configured at: {TESSERACT_CMD}")
 
 def extract_text_from_image(image_bytes: bytes) -> str:
     """
