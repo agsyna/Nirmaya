@@ -1,6 +1,7 @@
 import spacy
 import re
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional, Tuple
+from rapidfuzz import fuzz, process
 
 # Load the base spaCy English model
 try:
@@ -9,19 +10,18 @@ except OSError:
     print("Warning: en_core_web_sm not found.")
     nlp = None
 
-# Comprehensive list of lab test names to search for
-# Each key maps to a list of aliases (longest first to avoid partial matches)
+# Comprehensive list of lab test names with aliases
 LAB_TEST_PATTERNS = {
     # CBC
-    "hemoglobin": ["hemoglobin (hb)", "hemoglobin(hb)", "haemoglobin", "hemoglobin"],
-    "rbc": ["total rbc count", "rbc count", "total rbc"],
-    "wbc": ["total wbc count", "wbc count", "total wbc"],
+    "hemoglobin": ["hemoglobin", "haemoglobin", "hemoglobin (hb)", "hemoglobin(hb)", "hb"],
+    "rbc": ["total rbc count", "rbc count", "total rbc", "red blood cell count"],
+    "wbc": ["total wbc count", "wbc count", "total wbc", "white blood cell count", "tlc"],
     "platelet": ["platelet count", "platelet"],
-    "pcv": ["packed cell volume (pcv)", "packed cell volume", "pcv"],
-    "mcv": ["mean corpuscular volume (mcv)", "mean corpuscular volume", "mcv"],
+    "pcv": ["packed cell volume", "packed cell volume (pcv)", "pcv", "hematocrit", "hct"],
+    "mcv": ["mean corpuscular volume", "mean corpuscular volume (mcv)", "mcv"],
     "mch": ["mean corpuscular hemoglobin", "mch"],
     "mchc": ["mchc"],
-    "rdw": ["rdw"],
+    "rdw": ["rdw", "red cell distribution width"],
     # Differential WBC
     "neutrophils": ["neutrophils", "neutrophil"],
     "lymphocytes": ["lymphocytes", "lymphocyte"],
@@ -45,8 +45,8 @@ LAB_TEST_PATTERNS = {
     "uric_acid": ["uric acid"],
     # Liver
     "bilirubin_total": ["total bilirubin", "bilirubin"],
-    "sgot": ["sgot", "aspartate aminotransferase"],
-    "sgpt": ["sgpt", "alanine aminotransferase"],
+    "sgot": ["sgot", "aspartate aminotransferase", "ast"],
+    "sgpt": ["sgpt", "alanine aminotransferase", "alt"],
     "alp": ["alkaline phosphatase"],
     "total_protein": ["total protein"],
     "albumin": ["albumin"],
@@ -62,12 +62,18 @@ LAB_TEST_PATTERNS = {
     "esr": ["erythrocyte sedimentation rate", "esr"],
 }
 
-# Words that should NOT be captured as units
+# All aliases flattened for fuzzy matching
+ALL_ALIASES = {}
+for param_key, aliases in LAB_TEST_PATTERNS.items():
+    for alias in aliases:
+        ALL_ALIASES[alias.lower()] = param_key
+
+# Skip words for units
 SKIP_UNIT_WORDS = {"normal", "abnormal", "high", "low", "critical", "positive", "negative",
                    "reactive", "non", "borderline", "calculated", "electrical", "impedance",
-                   "vcs", "tat", "blood", "sample", "day", "days"}
+                   "vcs", "tat", "blood", "sample", "day", "days", "normat"}
 
-# Reasonable max values for each parameter to filter out garbage (phone numbers, etc.)
+# Max reasonable values to filter garbage
 MAX_REASONABLE_VALUES = {
     "hemoglobin": 25, "rbc": 10, "wbc": 50000, "platelet": 1000000,
     "pcv": 70, "mcv": 150, "mch": 50, "mchc": 45, "rdw": 30,
@@ -82,32 +88,180 @@ MAX_REASONABLE_VALUES = {
     "calcium": 20, "iron": 500, "vitamin_d": 200, "vitamin_b12": 3000, "esr": 150,
 }
 
+# Lines to skip (headers, footers, lab info)
+SKIP_LINE_KEYWORDS = [
+    "phone", "email", "www.", "http", "page ", "pathology lab", "healthcare",
+    "road", "complex", "mumbai", "delhi", "address", "generated on", "collection",
+    "whatsapp", "qr code", "instruments:", "interpretation:", "technician",
+    "thanks for", "end of report", "reference", "sample type", "sample collected",
+    "registered", "collected on", "reported on", "uhid", "investigation",
+    "differential wbc", "blood indices", "drlogy", "accurate", "caring",
+    "instant", "smart vision", "pathologist", "dmlt", "bmlt", "authenticity"
+]
 
-def _find_all_numbers_in_line(text: str) -> list:
+
+def _fuzzy_match_test_name(line_text: str) -> Optional[Tuple[str, str, int]]:
     """
-    Find all decimal/integer numbers in a line with their positions.
-    Returns list of (value_str, start_pos, end_pos).
+    Uses fuzzy matching to find a lab test name in a garbled OCR line.
+    Returns (param_key, matched_alias, match_end_position) or None.
     """
-    results = []
+    line_lower = line_text.lower().strip()
+    
+    # 1. First try EXACT matching (fastest)
+    for alias, param_key in sorted(ALL_ALIASES.items(), key=lambda x: len(x[0]), reverse=True):
+        idx = line_lower.find(alias)
+        if idx != -1:
+            return param_key, alias, idx + len(alias)
+    
+    # 2. If exact match fails, try FUZZY matching on the first part of the line
+    candidate = line_lower[:40]
+    
+    best_match = process.extractOne(
+        candidate,
+        ALL_ALIASES.keys(),
+        scorer=fuzz.partial_ratio,
+        score_cutoff=75
+    )
+    
+    if best_match:
+        matched_alias = best_match[0]
+        score = best_match[1]
+        param_key = ALL_ALIASES[matched_alias]
+        
+        # For very short aliases (<=3 chars), require higher score
+        if len(matched_alias) <= 3 and score < 90:
+            return None
+        
+        # Find where the test name actually ends in the original line.
+        # Strategy: find the position of the first digit — that's where
+        # the result value starts, so the test name ends just before it.
+        digit_match = re.search(r'\d', line_text)
+        if digit_match:
+            match_end = digit_match.start()
+        else:
+            match_end = min(len(matched_alias) + 5, len(line_text))
+        
+        return param_key, matched_alias, match_end
+    
+    return None
+
+
+def _extract_first_number(text: str, max_val: float = 999999) -> Optional[Tuple[str, int]]:
+    """
+    Find the first valid decimal/integer number in text within max_val range.
+    Returns (value_str, end_position) or None.
+    """
     for match in re.finditer(r'(\d+\.?\d*)', text):
-        results.append((match.group(1), match.start(), match.end()))
-    return results
+        val_str = match.group(1)
+        try:
+            val = float(val_str)
+            if val <= max_val:
+                return val_str, match.end()
+        except ValueError:
+            continue
+    return None
 
 
-def _is_valid_unit(text: str) -> bool:
-    """Check if extracted text is a valid measurement unit."""
-    if not text:
-        return False
-    return text.lower().strip() not in SKIP_UNIT_WORDS
+def _extract_unit(text: str) -> str:
+    """Extract a valid measurement unit from text."""
+    unit_match = re.match(r'\s*([a-zA-Z/%\.]+(?:/[a-zA-Z]+)*)', text)
+    if unit_match:
+        potential_unit = unit_match.group(1).strip()
+        if potential_unit.lower() not in SKIP_UNIT_WORDS and len(potential_unit) <= 15:
+            return potential_unit
+    return ""
+
+
+def _extract_reference_range(text: str) -> str:
+    """Extract reference range like '13.00 - 17.00'."""
+    match = re.search(r'(\d+\.?\d*)\s*[-–]\s*(\d+\.?\d*)', text)
+    if match:
+        return f"{match.group(1)} - {match.group(2)}"
+    return ""
+
+
+def _preprocess_lines(text: str) -> List[str]:
+    """
+    Preprocess OCR text: join lines where the value is on the next line.
+    For example:
+      MCH
+      30 Normal 27-32 pg
+    Gets joined into: MCH 30 Normal 27-32 pg
+    """
+    raw_lines = text.split("\n")
+    merged = []
+    i = 0
+    while i < len(raw_lines):
+        line = raw_lines[i].strip()
+        # If this line is short (just a keyword, no numbers) and next line has a number
+        if line and len(line) < 30 and not re.search(r'\d', line):
+            # Check if next line starts with a number or has result data
+            if i + 1 < len(raw_lines):
+                next_line = raw_lines[i + 1].strip()
+                if next_line and re.match(r'[\d°®o]', next_line):
+                    # Join them
+                    merged.append(f"{line} {next_line}")
+                    i += 2
+                    continue
+        merged.append(line)
+        i += 1
+    return merged
+
+
+def _extract_result_value(line: str, keyword_end_pos: int, param_key: str) -> Optional[Tuple[str, int]]:
+    """
+    Extract the RESULT value from a lab report line.
+    
+    Strategy: In lab reports, the structure is:
+      TestName   Result   Normal   RefMin - RefMax   Unit
+    So we look for numbers BEFORE the status word (Normal/Abnormal/High/Low)
+    to avoid grabbing reference range numbers.
+    """
+    remaining = line[keyword_end_pos:]
+    max_val = MAX_REASONABLE_VALUES.get(param_key, 999999)
+    
+    # Find where "Normal", "Abnormal", "High", "Low" appears
+    status_pos = len(remaining)  # Default to end of line
+    for status_word in ["normal", "normat", "abnormal", "high", "low"]:
+        idx = remaining.lower().find(status_word)
+        if idx != -1 and idx < status_pos:
+            status_pos = idx
+    
+    # Look for the result number in the text BEFORE the status word
+    before_status = remaining[:status_pos]
+    
+    # Find valid numbers in the before-status region
+    for match in re.finditer(r'(\d+\.?\d*)', before_status):
+        val_str = match.group(1)
+        try:
+            val = float(val_str)
+            if val <= max_val:
+                return val_str, keyword_end_pos + match.end()
+        except ValueError:
+            continue
+    
+    # Fallback: if no number found before status, try the whole line after keyword
+    # but only take the first valid one
+    for match in re.finditer(r'(\d+\.?\d*)', remaining):
+        val_str = match.group(1)
+        try:
+            val = float(val_str)
+            if val <= max_val:
+                return val_str, keyword_end_pos + match.end()
+        except ValueError:
+            continue
+    
+    return None
 
 
 def extract_lab_parameters(text: str) -> Dict[str, Dict[str, str]]:
     """
-    Extracts lab parameters from OCR text by matching known test names
-    and extracting numeric values intelligently.
+    Extracts lab parameters from OCR text using fuzzy matching for garbled text.
+    Key improvement: extracts result values BEFORE the 'Normal' status word
+    to avoid picking up reference range numbers.
     """
     parameters = {}
-    lines = text.split("\n")
+    lines = _preprocess_lines(text)
 
     for line in lines:
         line_stripped = line.strip()
@@ -116,103 +270,57 @@ def extract_lab_parameters(text: str) -> Dict[str, Dict[str, str]]:
         if not line_lower or len(line_lower) < 3:
             continue
 
-        # Skip header/footer lines that contain phone numbers, addresses, etc.
-        if any(skip in line_lower for skip in ["phone", "email", "www.", "http", "page ",
-                                                 "pathology lab", "healthcare", "road",
-                                                 "complex", "mumbai", "delhi", "address",
-                                                 "generated on", "collection", "whatsapp",
-                                                 "qr code", "instruments:", "interpretation:",
-                                                 "technician", "thanks for"]):
+        # Skip header/footer/irrelevant lines
+        if any(skip in line_lower for skip in SKIP_LINE_KEYWORDS):
             continue
 
-        for param_key, aliases in LAB_TEST_PATTERNS.items():
-            if param_key in parameters:
-                continue  # Already found this parameter
+        # Try to match a test name (exact or fuzzy)
+        match_result = _fuzzy_match_test_name(line_stripped)
+        if not match_result:
+            continue
 
-            for alias in aliases:
-                alias_lower = alias.lower()
-                idx = line_lower.find(alias_lower)
+        param_key, matched_alias, keyword_end_pos = match_result
 
-                if idx == -1:
-                    continue
+        # Skip if already found
+        if param_key in parameters:
+            continue
 
-                # Found the keyword! Now extract numbers from the line.
-                keyword_end = idx + len(alias_lower)
+        # Extract the result value (BEFORE "Normal" to avoid ref range numbers)
+        number_result = _extract_result_value(line_stripped, keyword_end_pos, param_key)
 
-                # Get all numbers in the line
-                all_numbers = _find_all_numbers_in_line(line_stripped)
+        if not number_result:
+            continue
 
-                # Filter: only numbers AFTER the keyword position
-                numbers_after_keyword = [
-                    (val, start, end) for val, start, end in all_numbers
-                    if start >= keyword_end
-                ]
+        val_str, val_end_pos = number_result
 
-                if not numbers_after_keyword:
-                    continue
+        # Extract unit from text after the number
+        after_val = line_stripped[val_end_pos:]
+        unit = _extract_unit(after_val)
 
-                # Take the FIRST valid number after the keyword
-                candidate_val = None
-                candidate_pos_end = 0
+        # Extract reference range from the line
+        ref_range = _extract_reference_range(line_stripped[keyword_end_pos:])
 
-                for val_str, start, end in numbers_after_keyword:
-                    try:
-                        val_float = float(val_str)
-                    except ValueError:
-                        continue
-
-                    # Check if value is within reasonable range
-                    max_val = MAX_REASONABLE_VALUES.get(param_key, 999999)
-                    if val_float > max_val:
-                        continue  # Skip garbage values (phone numbers etc.)
-
-                    candidate_val = val_str
-                    candidate_pos_end = end
-                    break
-
-                if candidate_val is None:
-                    continue
-
-                # Extract unit: the text immediately after the number
-                remaining_after_val = line_stripped[candidate_pos_end:].strip()
-                unit = ""
-                unit_match = re.match(r'([a-zA-Z/%\.]+(?:/[a-zA-Z]+)*)', remaining_after_val)
-                if unit_match:
-                    potential_unit = unit_match.group(1)
-                    if _is_valid_unit(potential_unit):
-                        unit = potential_unit
-
-                # Extract reference range from the line
-                ref_range = ""
-                ref_match = re.search(r'(\d+\.?\d*)\s*[-–]\s*(\d+\.?\d*)', line_stripped[keyword_end:])
-                if ref_match:
-                    ref_range = f"{ref_match.group(1)} - {ref_match.group(2)}"
-
-                parameters[param_key] = {
-                    "name": alias.title(),
-                    "value": candidate_val,
-                    "unit": unit,
-                    "extracted_reference": ref_range
-                }
-                break  # Found this param, move to next
+        parameters[param_key] = {
+            "name": matched_alias.title(),
+            "value": val_str,
+            "unit": unit,
+            "extracted_reference": ref_range,
+            "matched_from": line_stripped[:60]  # Debug info
+        }
 
     return parameters
 
 
 def extract_medicines(text: str) -> List[Dict[str, str]]:
-    """
-    Extracts medicines and dosages from a prescription.
-    """
+    """Extracts medicines and dosages from a prescription."""
     medicines = []
 
-    # 1. Use spaCy NER for potential entity detection
     if nlp is not None:
         doc = nlp(text)
         for ent in doc.ents:
             if ent.label_ in ["PRODUCT", "ORG"]:
                 medicines.append({"name": ent.text, "source": "ner"})
 
-    # 2. Regex for dosage patterns
     lines = text.split("\n")
     dosage_pattern = re.compile(
         r'(?:tab\.?|cap\.?|syrup|inj\.?|drops?)?\s*'
@@ -232,29 +340,17 @@ def extract_medicines(text: str) -> List[Dict[str, str]]:
             dosage = match.group(2).strip()
             timing_match = timing_pattern.search(line)
             timing = timing_match.group(0) if timing_match else ""
-
             if len(med_name) > 2:
                 existing = [m["name"].lower() for m in medicines]
                 if med_name.lower() not in existing:
-                    medicines.append({
-                        "name": med_name,
-                        "dosage": dosage,
-                        "timing": timing,
-                        "source": "regex"
-                    })
+                    medicines.append({"name": med_name, "dosage": dosage, "timing": timing, "source": "regex"})
 
     return medicines
 
 
 def analyze_parsed_text(text: str, report_type: str = "lab_report") -> Dict[str, Any]:
-    """
-    Main router for text analysis.
-    """
-    result = {
-        "raw_text_length": len(text),
-        "parameters": {},
-        "medicines": []
-    }
+    """Main router for text analysis."""
+    result = {"raw_text_length": len(text), "parameters": {}, "medicines": []}
 
     if report_type == "lab_report":
         result["parameters"] = extract_lab_parameters(text)
