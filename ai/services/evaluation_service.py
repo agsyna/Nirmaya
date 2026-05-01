@@ -59,6 +59,12 @@ REFERENCE_RANGES = {
         "min": 11.6, "max": 14.0,
         "critical_min": 8, "critical_max": 20
     },
+    "mpv": {
+        "display_name": "Mean Platelet Volume",
+        "unit": "fL",
+        "min": 7.5, "max": 10.5,
+        "critical_min": 5, "critical_max": 15
+    },
     # ===== Differential WBC =====
     "neutrophils": {
         "display_name": "Neutrophils",
@@ -208,6 +214,36 @@ REFERENCE_RANGES = {
         "min": 3.5, "max": 5.5,
         "critical_min": 1.5, "critical_max": 7.0
     },
+    "globulin": {
+        "display_name": "Globulin",
+        "unit": "g/dL",
+        "min": 2.0, "max": 3.5,
+        "critical_min": 1.0, "critical_max": 6.0
+    },
+    "ag_ratio": {
+        "display_name": "A/G Ratio",
+        "unit": "",
+        "min": 1.2, "max": 2.2,
+        "critical_min": 0.5, "critical_max": 3.5
+    },
+    "bilirubin_indirect": {
+        "display_name": "Unconjugated (Indirect) Bilirubin",
+        "unit": "mg/dL",
+        "min": 0.0, "max": 1.1,
+        "critical_min": 0, "critical_max": 10.0
+    },
+    "delta_bilirubin": {
+        "display_name": "Delta Bilirubin",
+        "unit": "mg/dL",
+        "min": 0.0, "max": 0.2,
+        "critical_min": 0, "critical_max": 5.0
+    },
+    "ggt": {
+        "display_name": "GGT (Gamma GT)",
+        "unit": "U/L",
+        "min": 0, "max": 55,
+        "critical_min": 0, "critical_max": 300
+    },
     # ===== Thyroid =====
     "tsh": {
         "display_name": "TSH",
@@ -226,6 +262,18 @@ REFERENCE_RANGES = {
         "unit": "ug/dL",
         "min": 4.5, "max": 12.0,
         "critical_min": 1.0, "critical_max": 25.0
+    },
+    "ft3": {
+        "display_name": "Free T3",
+        "unit": "pg/mL",
+        "min": 2.0, "max": 4.4,
+        "critical_min": 1.0, "critical_max": 10.0
+    },
+    "ft4": {
+        "display_name": "Free T4",
+        "unit": "ng/dL",
+        "min": 0.8, "max": 1.8,
+        "critical_min": 0.3, "critical_max": 5.0
     },
     # ===== Others =====
     "calcium": {
@@ -258,13 +306,75 @@ REFERENCE_RANGES = {
         "min": 0, "max": 20,
         "critical_min": 0, "critical_max": 100
     },
+    "crp": {
+        "display_name": "C-Reactive Protein",
+        "unit": "mg/L",
+        "min": 0, "max": 5,
+        "critical_min": 0, "critical_max": 200
+    },
+    "sodium": {
+        "display_name": "Sodium",
+        "unit": "mEq/L",
+        "min": 136, "max": 145,
+        "critical_min": 120, "critical_max": 160
+    },
+    "potassium": {
+        "display_name": "Potassium",
+        "unit": "mEq/L",
+        "min": 3.5, "max": 5.0,
+        "critical_min": 2.5, "critical_max": 6.5
+    },
+    "chloride": {
+        "display_name": "Chloride",
+        "unit": "mEq/L",
+        "min": 98, "max": 106,
+        "critical_min": 80, "critical_max": 120
+    },
 }
+
+
+import re as _re
+
+
+def _parse_extracted_reference(ref_str: str):
+    """
+    Parses the reference range string extracted from the report.
+    Returns (min_val, max_val) if successfully parsed, else None.
+    
+    Handles formats like:
+        "13.0 - 16.5"
+        "0.66 - 1.25"
+        "4000 - 10000"
+        "150000 - 410000"
+    """
+    if not ref_str:
+        return None
+    
+    match = _re.search(r'(\d+\.?\d*)\s*[-–]\s*(\d+\.?\d*)', ref_str)
+    if match:
+        try:
+            min_val = float(match.group(1))
+            max_val = float(match.group(2))
+            if min_val < max_val:
+                return (min_val, max_val)
+        except ValueError:
+            pass
+    
+    return None
 
 
 def evaluate_parameters(parameters: Dict[str, Dict[str, str]]) -> Dict[str, Any]:
     """
-    Compares extracted parameters against standard reference ranges.
-    Flags each as Normal, High, Low, or Critical.
+    Compares extracted parameters against reference ranges.
+    
+    STRATEGY: Report-First, Hardcoded-Fallback
+    1. First, try to use the reference range extracted from the report itself
+       (more accurate, lab-specific)
+    2. If not available/parseable, fall back to our hardcoded standard ranges
+    3. Critical thresholds always come from hardcoded database
+    
+    This ensures each parameter is evaluated against the SAME reference range
+    the lab intended, not a generic one.
     """
     evaluated_results = {}
     health_score_points = 0
@@ -274,6 +384,7 @@ def evaluate_parameters(parameters: Dict[str, Dict[str, str]]) -> Dict[str, Any]
         val_str = data.get("value", "")
         extracted_unit = data.get("unit", "")
         display_name = data.get("name", param_key)
+        extracted_ref = data.get("extracted_reference", "")
 
         try:
             val = float(val_str)
@@ -285,38 +396,63 @@ def evaluate_parameters(parameters: Dict[str, Dict[str, str]]) -> Dict[str, Any]
             }
             continue
 
-        ref = REFERENCE_RANGES.get(param_key)
-        if not ref:
+        # Get hardcoded reference (for fallback and critical thresholds)
+        hardcoded_ref = REFERENCE_RANGES.get(param_key)
+        
+        # Try report's own reference range first
+        report_range = _parse_extracted_reference(extracted_ref)
+        
+        if report_range:
+            # USE REPORT'S REFERENCE RANGE (more accurate, lab-specific)
+            ref_min, ref_max = report_range
+            ref_source = "report"
+        elif hardcoded_ref:
+            # FALLBACK: use our hardcoded standard range
+            ref_min = hardcoded_ref["min"]
+            ref_max = hardcoded_ref["max"]
+            ref_source = "standard"
+        else:
+            # No reference range available at all
             evaluated_results[display_name] = {
                 "value": val,
                 "unit": extracted_unit,
                 "status": "Unknown",
+                "reference_range": "Not available",
                 "message": "No reference range available"
             }
             continue
 
         total_params += 1
         status = "Normal"
+        
+        # Critical thresholds always from hardcoded (if available)
+        critical_min = hardcoded_ref["critical_min"] if hardcoded_ref else ref_min * 0.3
+        critical_max = hardcoded_ref["critical_max"] if hardcoded_ref else ref_max * 3.0
 
-        # Check critical first
-        if val <= ref["critical_min"]:
+        # Evaluate: critical first, then normal range
+        if val <= critical_min:
             status = "CRITICAL LOW"
             health_score_points += 3
-        elif val >= ref["critical_max"]:
+        elif val >= critical_max:
             status = "CRITICAL HIGH"
             health_score_points += 3
-        elif val < ref["min"]:
+        elif val < ref_min:
             status = "Low"
             health_score_points += 1
-        elif val > ref["max"]:
+        elif val > ref_max:
             status = "High"
             health_score_points += 1
 
+        # Build the reference range display string
+        ref_unit = extracted_unit if extracted_unit else (hardcoded_ref["unit"] if hardcoded_ref else "")
+        ref_display = f"{ref_min} - {ref_max} {ref_unit}".strip()
+
         evaluated_results[display_name] = {
             "value": val,
-            "unit": extracted_unit if extracted_unit else ref["unit"],
+            "unit": extracted_unit if extracted_unit else (hardcoded_ref["unit"] if hardcoded_ref else ""),
             "status": status,
-            "reference_range": f"{ref['min']} - {ref['max']} {ref['unit']}"
+            "reference_range": ref_display,
+            "ref_source": ref_source  # Shows if range came from report or standard
         }
 
     # Overall risk assessment

@@ -1,0 +1,1197 @@
+PERSONAL HEALTH
+SMART REPORT
+Prepared for
+Mayank Gupta
+Basic Info
+Male /20 Yrs
+Sample collection date
+28/02/2026
+View detailed health
+insights, and trends on
+Tata 1mg app.
+     Click here
+Patient ID
+Date of Collection
+Prepared for
+Gender/age
+OKH2825002 28/02/26
+Mayank
+Male /20 Yrs
+Doctor Summary
+Good Health Silver Package With Smart Report
+Note
+This is an electronically generated summary of clinically significant parameters of the attached report. It is advised to read 
+this summary in conjunction with the attached report and to correlate it clinically. For the trends section, the out-of-range 
+values are highlighted with respect to the bio-reference range of respective reports. 
+Test Name
+Result
+Bio. Ref. Interval
+Trends (For last three tests)
+Book more tests with Tata
+1mg to start viewing trends.
+Your health journey starts
+here!
+Complete Blood Count
+28 Feb 26
+Hemoglobin
+14.4     g/dL
+13.0 - 17.0
+RBC
+5.37     10^6/cu.mm
+4.5 - 5.5
+HCT
+43.0     %
+40 - 50
+MCV
+80.1     fL
+83 - 101
+MCH
+26.8     pg
+27 - 32
+RDW-CV
+15.7     %
+11.5 - 14
+Total Leucocyte Count
+5.36     10^3/ÂµL
+4 - 10
+Neutrophils
+54.3     %
+40 - 80
+Lymphocytes
+36.6     %
+20 - 40
+Monocytes
+8     %
+2 - 10
+Eosinophils
+1.1     %
+1 - 6
+Basophils
+0     %
+0 - 2
+Absolute Basophil Count
+0     10^3/ÂµL
+0.02 - 0.1
+Platelet Count
+254     10^3/ÂµL
+150 - 410
+PDW
+18.9     fL
+9 - 17
+Page 2/4
+Patient ID
+Date of Collection
+Prepared for
+Gender/age
+OKH2825002 28/02/26
+Mayank
+Male /20 Yrs
+Doctor Summary
+Good Health Silver Package With Smart Report
+Test Name
+Result
+Bio. Ref. Interval
+Trends (For last three tests)
+Diabetes Profile
+28 Feb 26
+Book more tests with Tata
+1mg to start viewing trends.
+Your health journey starts
+here!
+Glucose - Fasting
+88     mg/dL
+70 - 99
+Kidney Health
+28 Feb 26
+Creatinine
+0.65     mg/dL
+0.7 - 1.3
+Uric Acid
+5.3     mg/dL
+3.5 - 7.2
+Lipid Profile
+28 Feb 26
+Cholesterol - Total
+144     mg/dL
+<= 199.9
+Triglycerides
+89     mg/dL
+<= 149.9
+Cholesterol - HDL
+38     mg/dL
+>= 39.9
+Cholesterol - LDL
+88     mg/dl
+<= 99.9
+Non HDL Cholesterol
+106     mg/dL
+<= 129.9
+Liver Health
+28 Feb 26
+Bilirubin - Total
+1.00     mg/dL
+0.3 - 1.2
+Bilirubin-Direct
+0.33     mg/dL
+0.0 - 0.3
+Protein, Total
+7.40     g/dL
+5.7 - 8.2
+Albumin
+4.45     g/dL
+3.2 - 4.8
+Aspartate Transaminase
+(SGOT)
+16     U/L
+0 - 33.9
+Page 3/4
+Patient ID
+Date of Collection
+Prepared for
+Gender/age
+OKH2825002 28/02/26
+Mayank
+Male /20 Yrs
+Doctor Summary
+Good Health Silver Package With Smart Report
+Test Name
+Result
+Bio. Ref. Interval
+Trends (For last three tests)
+Liver Health
+28 Feb 26
+Book more tests with Tata
+1mg to start viewing trends.
+Your health journey starts
+here!
+Alanine Transaminase
+(SGPT)
+33     U/L
+10 - 49
+Alkaline Phosphatase
+64     U/L
+46 - 116
+Gamma
+Glutamyltransferase (GGT)
+20     U/L
+0 - 72.9
+Urine Routine & Microscopy
+28 Feb 26
+Specific gravity
+1.022      
+1.000 - 1.030
+pH
+6.0      
+5 - 8
+Glucose
+Negative
+      
+Negative
+Protein
+Negative
+      
+Negative
+Ketones
+Negative
+      
+Negative
+Red blood cell
+0.40     /hpf
+0 - 2
+Thyroid Health
+28 Feb 26
+Thyroid Stimulating
+Hormone - Ultra Sensitive
+0.911     uIU/ml
+0.55 - 4.78
+Page 4/4
+Complete Blood Count
+Hemoglobin
+14.4
+g/dL
+13.0-17.0
+Spectrophotometry
+(Cyanide-free)
+RBC
+5.37
+10^6/cu.mm
+4.5 - 5.5
+Impedance
+HCT
+43.0
+%
+40 - 50
+Calculated
+MCV
+80.1
+fL
+83 - 101
+Calculated
+MCH
+26.8
+pg
+27 - 32
+Calculated
+MCHC
+33.5
+g/dL
+31.5 - 34.5
+Calculated
+RDW-CV
+15.7
+%
+11.5-14
+Calculated
+Total Leucocyte Count
+5.36
+10^3/µL
+4 - 10
+Impedance
+Differential Leucocyte Count
+Neutrophils
+54.3
+%
+40-80
+DHSS/Microscopy
+Lymphocytes
+36.6
+%
+20-40
+DHSS/Microscopy
+Monocytes
+8
+%
+2-10
+DHSS/Microscopy
+Eosinophils
+1.1
+%
+1-6
+DHSS/Microscopy
+Basophils
+0
+%
+0-2
+Impedance/Microscopy
+Absolute Leucocyte Count
+Absolute Neutrophil Count
+2.91
+10^3/µL
+2 - 7
+Calculated
+Absolute Lymphocyte Count
+1.96
+10^3/µL
+1-3
+Calculated
+Absolute Monocyte Count
+0.43
+10^3/µL
+0.2 - 1
+Calculated
+Absolute Eosinophil Count
+0.06
+10^3/µL
+0.02 - 0.5
+Calculated
+Absolute Basophil Count
+0
+10^3/µL
+0.02-0.1
+Calculated
+Platelet Count
+254
+10^3/µL
+150-410
+Impedance/Microscopy
+MPV
+9.5
+fL
+6.5 - 12
+Calculated
+PDW
+18.9
+fL
+9-17
+Calculated
+Comment:
+As per the recommendation of International council for Standardization in Hematology, the differential leucocyte counts are
+additionally being reported as absolute numbers of each cell in per unit volume of blood.
+DHSS : Double Hydrodynamic Sequential System Flowcytometry
+Calculated parameters are either derived from Impedence measure, RBC pulse measurement, RBC/platelet histograms or
+formula derived.
+PO No :PO10001482847-790
+Customer Name
+: Mr.MAYANK GUPTA
+Collected Via
+: TATA 1MG OKHLA
+Age/Gender
+: 20Y 2M 7D /Male    
+Referred By
+: Dr.
+Lab Visit ID
+: OKH2825002
+Collection Date
+: 28/Feb/2026 09:30AM
+Barcode ID/Order ID
+: D29401040 / 16024076
+Report Date
+: 28/Feb/2026 05:24PM
+Sample Type
+: Whole Blood-EDTA
+Report Status
+: Final Report
+HAEMATOLOGY
+GOOD HEALTH SILVER PACKAGE WITH SMART REPORT
+Test Name
+Result
+Unit
+Bio. Ref. Interval
+Method
+This test has been performed at
+TATA 1MG OKHLA
+Address: 2nd Floor, B-225, Okhla Phase I,
+Okhla Industrial Estate, New Delhi, Delhi
+110020
+Page 1 of 12
+FBS (Fasting Blood Sugar)
+Glucose - Fasting
+88
+mg/dL
+70-99
+Hexokinase/G-6-PDH
+Fasting Plasma Glucose (mg/dL)
+2 hr plasma Glucose (mg/dL)
+Diagnosis                    
+99 or below
+139 or below
+Normal
+100 to 125
+140 to 199
+Pre-Diabetes (IGT)
+126 or above
+200 or above
+Diabetes
+ 
+Reference : American Diabetes Association
+Comment:
+Impaired glucose tolerance (IGT) fasting, means a person has an increased risk of developing  type 2 diabetes but does not
+have it yet. A level of 126 mg/dL or above, confirmed by repeating the test on another day, means a person has diabetes.
+IGT (2 hrs Post meal ), means a person has an increased risk of developing type 2 diabetes but does not have it yet. A 2-hour
+glucose level of 200 mg/dL or above, confirmed by repeating the test on another day, means a person has diabetes
+ 
+Plasma Glucose Goals
+For people with Diabetes
+Before meal
+70-130 mg/dL
+2 Hours after meal
+Less than 180 mg/dL
+HbA1c
+Less than 7%
+ 
+PO No :PO10001482847-790
+Customer Name
+: Mr.MAYANK GUPTA
+Collected Via
+: TATA 1MG OKHLA
+Age/Gender
+: 20Y 2M 7D /Male    
+Referred By
+: Dr.
+Lab Visit ID
+: OKH2825002
+Collection Date
+: 28/Feb/2026 09:30AM
+Barcode ID/Order ID
+: D29401041 / 16024076
+Report Date
+: 28/Feb/2026 04:13PM
+Sample Type
+: Fluoride Plasma F
+Report Status
+: Final Report
+BIOCHEMISTRY
+GOOD HEALTH SILVER PACKAGE WITH SMART REPORT
+Test Name
+Result
+Unit
+Bio. Ref. Interval
+Method
+This test has been performed at
+TATA 1MG OKHLA
+Address: 2nd Floor, B-225, Okhla Phase I,
+Okhla Industrial Estate, New Delhi, Delhi
+110020
+Page 2 of 12
+Lipid Profile
+Cholesterol - Total
+144
+mg/dL
+Low (desirable): < 200 
+Moderate (borderline)
+200–239 
+High: >/= 240
+Enzymatic
+Triglycerides
+89
+mg/dL
+Normal: <150, 
+Borderline: 150 - 199,
+High:200-499,
+Very High>=500
+GPO
+Cholesterol - HDL
+38
+mg/dL
+High risk <40mg/dL
+Low risk >=40mg/dL
+Cholesterol Esterase
+Cholesterol - LDL
+88
+mg/dl
+Desirable: <100
+Above desirable: 100 -
+129
+Borderline high : 130 -
+159
+High : 160 - 189
+Very high : >=190
+Calculated
+Cholesterol- VLDL
+18
+mg/dl
+<30
+Calculated
+Cholesterol : HDL Cholesterol
+3.8
+Ratio
+Desirable : 3.5-4.5 
+High Risk : >5
+Calculated
+LDL : HDL Cholesterol
+2.32
+Ratio
+Desirable : 2.5-3.0
+High risk : >3.5
+Calculated
+Non HDL Cholesterol
+106
+mg/dL
+Desirable:< 130,
+Above Desirable:130 -
+159, 
+Borderline High:160 -
+189, 
+High:190 - 219,
+Very High: >= 220
+Calculated
+Comment:
+•Lipid results show analytical and biological variation; repeat testing may be recommended before diagnosis or treatment
+PO No :PO10001482847-790
+Customer Name
+: Mr.MAYANK GUPTA
+Collected Via
+: TATA 1MG OKHLA
+Age/Gender
+: 20Y 2M 7D /Male    
+Referred By
+: Dr.
+Lab Visit ID
+: OKH2825002
+Collection Date
+: 28/Feb/2026 09:30AM
+Barcode ID/Order ID
+: D29401039 / 16024076
+Report Date
+: 28/Feb/2026 04:00PM
+Sample Type
+: Serum
+Report Status
+: Final Report
+BIOCHEMISTRY
+GOOD HEALTH SILVER PACKAGE WITH SMART REPORT
+Test Name
+Result
+Unit
+Bio. Ref. Interval
+Method
+This test has been performed at
+TATA 1MG OKHLA
+Address: 2nd Floor, B-225, Okhla Phase I,
+Okhla Industrial Estate, New Delhi, Delhi
+110020
+Page 3 of 12
+decisions.
+•Indians lie at high risk of developing early (a decade earlier than western populations) and more severe cardiovascular
+disease (ASCVD); higher mortality. Dyslipidemia (abnormal lipid profile) affects nearly 80% of population. 
+•Total cholesterol is the sum of all cholesterol in the blood, including HDL, LDL, VLDL, and remnants.
+•LDL Cholesterol (LDL-C), is the main “bad” cholesterol that contributes to plaque buildup, increasing the risk of heart disease
+and stroke, typically calculated by the Friedewald formula.  Direct LDL-C measurement by homogeneous enzymatic assays
+carried out when triglycerides >400 mg/dL or dysbetalipoproteinemia.
+•High-density lipoprotein (HDL) or “good” cholesterol is anti-atherogenic (protective). Low HDL-C is a cardiovascular risk
+factor; seen in almost two-third of Indians. Values above 60 mg/dl are considered protective.
+•Triglyceride (TG) are a key driver of CVD. Indians are especially prone to atherogenic dyslipidemia—high TG, low HDL-C, and
+high LDL-C—closely linked to diabetes, metabolic syndrome, and insulin resistance; making TG management crucial.
+•Non-HDL-Cholesterol (non-HDL-C) Non-HDL-C measures all plaque-forming lipoproteins and is vital to monitor in high-TG
+patients (e.g., diabetics, obese) and those on statin therapy. 
+•Lipid Association of India (LAI-2020) recommends:-
+Screening of all Indians above the age of 20 years for CVD risk factors, esp. lipid profile.
+Identification of Major Risk factors: Age (male ≥45 years, female ≥55 years);  Family h/o heart disease at younger age
+(<55 yrs in males, <65 yrs in female or before menopause), current smoking/tobacco use, High blood pressure, Low HDL
+(males <40 mg/dl and females <50mg/dl).
+Fasting not mandatory; both fasting and non-fasting lipid profiles are useful for screening in Indian patients.
+LAI identifies both LDL-C and non-HDL-C as risk factors and recommends LDL-C, non-HDL-C and Apo-B as targets of lipid-
+lowering therapy.
+Lifestyle changes are the first-line approach for managing and preventing dyslipidemia. Treatment in low-risk individuals is
+initiated only after 3 months of unsuccessful lifestyle modification.
+Testing for Apolipoprotein B(Apo-B), hsCRP, Lp(a ) should be considered for patients in moderate risk group.
+Treatment targets for lipid-lowering therapy for various ASCVD risk groups
+Risk Group
+Treatment targets
+ 
+LDL-C, mg/dL
+(primary target)
+Non-HDL-C, mg/dL
+(co-primary target)
+Apo-B, mg/dL
+(secondary target)
+Low-risk group
+<100
+<130
+<90
+Moderate-risk group
+<100
+(optional <70)
+<130
+(optional <100)
+<90
+High-risk group
+<70
+<100
+<80
+Very high-risk group
+<50
+<80
+<65
+Extreme-risk group- category A
+<50
+(optional ≤30)
+<80
+(optional ≤60)
+<65
+Extreme-risk group- category B
+≤30
+≤60
+<50
+Extreme-risk group- category C
+10-15
+40-45
+-
+Source: LAI (2024) Consensus Statement IV
+ 
+•Per NCEP Expert Panel (2011) guidelines, universal dyslipidemia screening is advised at 9–11 years and repeated at 17–21
+years. Screening before age 2 yrs is not recommended; from age 2 onward, selective screening is done for children with a family
+history of premature CVD or risk factors such as obesity, diabetes, or hypertension.
+Note: Biological Reference Interval as per National Cholesterol Education Program (NCEP) ATP III and LAI guidelines
+PO No :PO10001482847-790
+Customer Name
+: Mr.MAYANK GUPTA
+Collected Via
+: TATA 1MG OKHLA
+Age/Gender
+: 20Y 2M 7D /Male    
+Referred By
+: Dr.
+Lab Visit ID
+: OKH2825002
+Collection Date
+: 28/Feb/2026 09:30AM
+Barcode ID/Order ID
+: D29401039 / 16024076
+Report Date
+: 28/Feb/2026 04:00PM
+Sample Type
+: Serum
+Report Status
+: Final Report
+BIOCHEMISTRY
+GOOD HEALTH SILVER PACKAGE WITH SMART REPORT
+Test Name
+Result
+Unit
+Bio. Ref. Interval
+Method
+This test has been performed at
+TATA 1MG OKHLA
+Address: 2nd Floor, B-225, Okhla Phase I,
+Okhla Industrial Estate, New Delhi, Delhi
+110020
+Page 4 of 12
+LIVER FUNCTION TEST
+Liver Function Test
+Bilirubin-Total
+1.00
+mg/dL
+0.3 – 1.2
+Vanadate oxidation
+Bilirubin-Direct
+0.33
+mg/dL
+0.0-0.3
+Vanadate oxidation
+Bilirubin-Indirect
+0.67
+mg/dL
+0.2-0.8
+Calculated
+Protein, Total
+7.40
+g/dL
+5.7–8.2
+Biuret
+Albumin
+4.45
+g/dL
+3.2-4.8
+BCG Dye Binding
+Globulin
+3.0
+g/dl
+2.1 - 3.9
+Calculated
+A/G Ratio
+1.51
+Ratio
+0.8 - 2.1
+Calculated
+SGOT (Aspartate Aminotransferase)
+16
+U/L
+<34
+Modified IFCC
+SGPT (Alanine Transaminase)
+33
+U/L
+10-49
+Modified IFCC
+SGOT/SGPT
+0.48
+Ratio
+Calculated
+Alkaline Phosphatase
+64
+U/L
+46-116
+IFCC Standardization
+Gamma Glutamyltransferase (GGT)
+20
+U/L
+<73
+Modified IFCC
+Comment:
+Raised ALT and AST indicate hepatocellular damage (e.g. viral or drugs etc). ALT is more liver-specific while AST is also
+found in heart, skeletal muscle, and kidney. Mild elevation (less than twice normal) often resolves on its own. Fatty liver
+disease (especially with metabolic syndrome) is a common cause in asymptomatic cases. Certain drugs (paracetamol,
+statins), herbal supplements, energy drinks, and antibiotics may also affect liver function.
+SGOT/SGPT Ratio: Typically <1 in healthy individuals (vary between 0.7-1.4; higher in women than men). High SGPT (ratio
+<1) seen in acute or chronic hepatitis, autoimmune disorders, medications, toxins while ratio >1 indicates alcoholic
+hepatitis, cirrhosis, metastasis or non-hepatic issues (hemolytic diseases, CVS disorders).
+Elevated Alkaline Phosphatase and GGT: Suggest cholestatic diseases (e.g. bile duct obstruction, primary biliary
+cirrhosis etc.) and can also be due to bone disease, pregnancy, chronic renal failure, malignancy, and congestive heart
+failure.
+High Bilirubin: Indicates jaundice due to increased RBC breakdown, liver damage (e.g., infections, toxins), or cholestasis
+(e.g., gallstones, tumors).
+High Protein Levels: Seen in dehydration (e.g., severe vomiting, diarrhea) or increased production (e.g., inflammation,
+hematopoietic neoplasms). Low protein and albumin: Result from impaired synthesis (liver disease), decreased intake,
+PO No :PO10001482847-790
+Customer Name
+: Mr.MAYANK GUPTA
+Collected Via
+: TATA 1MG OKHLA
+Age/Gender
+: 20Y 2M 7D /Male    
+Referred By
+: Dr.
+Lab Visit ID
+: OKH2825002
+Collection Date
+: 28/Feb/2026 09:30AM
+Barcode ID/Order ID
+: D29401039 / 16024076
+Report Date
+: 28/Feb/2026 04:00PM
+Sample Type
+: Serum
+Report Status
+: Final Report
+BIOCHEMISTRY
+GOOD HEALTH SILVER PACKAGE WITH SMART REPORT
+Test Name
+Result
+Unit
+Bio. Ref. Interval
+Method
+This test has been performed at
+TATA 1MG OKHLA
+Address: 2nd Floor, B-225, Okhla Phase I,
+Okhla Industrial Estate, New Delhi, Delhi
+110020
+Page 5 of 12
+tissue damage, malabsorption, or increased renal excretion.
+Blood Urea Nitrogen
+Blood Urea Nitrogen
+9
+mg/dL
+9.0 - 23.0
+Urease with GLDH
+Comment:
+Elevated Blood Urea Nitrogen can occur with kidney diseases, but it can also happen from a high protein diet, increased
+protein breakdown, certain medications, dehydration or burns, GI haemorrhage, cortisol and renal failure. BUN levels often
+rise with aging as well. 
+Abnormally low levels of Blood Urea Nitrogen can be a sign of malnutrition, lack of protein in the diet, and liver disease.
+Urea
+Urea
+19.26
+mg/dL
+19.26 - 49.22
+Calculated
+Comment:
+Elevated Blood Urea can occur with kidney disease, but it can also happen from high protein diet, increased protein
+breakdown, certain medications, dehydration or burns, GI haemorrhage, cortisol and renal failure. Blood urea levels often
+rise with aging as well. 
+Abnormally low levels of Blood Urea can be a sign of malnutrition, lack of protein in the diet, and liver disease. 
+Note:
+Independently, blood urea may not reflect kidney function. For this reason, it is often interpreted in the context of other
+measurements, such as creatinine, a breakdown product of the muscle, that is filtered by the kidneys.
+In blood, Urea is usually reported as BUN and expressed in mg/dl. BUN mass units can be converted to urea mass units by
+multiplying by 2.14.
+Creatinine
+Creatinine
+0.65
+mg/dL
+0.7-1.3
+Alkaline picrate-kinetic
+PO No :PO10001482847-790
+Customer Name
+: Mr.MAYANK GUPTA
+Collected Via
+: TATA 1MG OKHLA
+Age/Gender
+: 20Y 2M 7D /Male    
+Referred By
+: Dr.
+Lab Visit ID
+: OKH2825002
+Collection Date
+: 28/Feb/2026 09:30AM
+Barcode ID/Order ID
+: D29401039 / 16024076
+Report Date
+: 28/Feb/2026 04:00PM
+Sample Type
+: Serum
+Report Status
+: Final Report
+BIOCHEMISTRY
+GOOD HEALTH SILVER PACKAGE WITH SMART REPORT
+Test Name
+Result
+Unit
+Bio. Ref. Interval
+Method
+This test has been performed at
+TATA 1MG OKHLA
+Address: 2nd Floor, B-225, Okhla Phase I,
+Okhla Industrial Estate, New Delhi, Delhi
+110020
+Page 6 of 12
+Comment:
+Creatinine is a more specific and sensitive indicator of renal disease than Blood Urea Nitrogen.
+ Uses:
+To diagnose renal insufficiency;
+Adjusting dosage of renally excreted medications.
+Monitoring renal transplant recipients.
+Serum creatinine levels are a proxy for reduced skeletal muscle mass.
+Serum creatinine measurement is used in estimating the Glomerular Filtration Rate (GFR) for people with Chronic Kidney
+disease (CKD) and those with risk factors for CKD (Diabetes Mellitus, hypertension, cardiovascular disease, and family
+history of kidney disease).
+ 
+Increased In: Blockage in the urinary tract, Pre- and postrenal azotemia, Impaired kidney function, Loss of body fluid
+(dehydration), Muscle diseases such as gigantism, acromegaly. 
+Decreased In: Pregnancy, certain drugs (e.g., cimetidine, trimethoprim), Myasthenia Gravis, Muscular dystrophy.
+Uric Acid, Serum
+Uric Acid
+5.3
+mg/dL
+3.5-7.2
+Uricase/Peroxidase
+Comment:
+Uric acid levels show diurnal variation. The level is usually higher in the morning and lower in the evening. Increased levels
+are seen in starvation, strenuous exercise, malnutrition, or lead poisoning, gout, renal disorders, increased breakdown of
+body cells in some cancers (including leukemia, lymphoma, and multiple myeloma) or cancer treatments, hemolytic anemia,
+sickle cell anemia, or heart failure, pre-eclampsia, liver disease (cirrhosis), obesity, psoriasis, hypothyroidism, low blood
+levels of parathyroid hormone (PTH), certain drugs, foods that are very high in purines - such as organ meats, red meats,
+some seafood and beer. Decreased levels are seen in liver disease, Wilson's disease, Syndrome of inappropriate
+antidiuretic hormone (SIADH), certain drugs.
+PO No :PO10001482847-790
+Customer Name
+: Mr.MAYANK GUPTA
+Collected Via
+: TATA 1MG OKHLA
+Age/Gender
+: 20Y 2M 7D /Male    
+Referred By
+: Dr.
+Lab Visit ID
+: OKH2825002
+Collection Date
+: 28/Feb/2026 09:30AM
+Barcode ID/Order ID
+: D29401039 / 16024076
+Report Date
+: 28/Feb/2026 04:00PM
+Sample Type
+: Serum
+Report Status
+: Final Report
+BIOCHEMISTRY
+GOOD HEALTH SILVER PACKAGE WITH SMART REPORT
+Test Name
+Result
+Unit
+Bio. Ref. Interval
+Method
+This test has been performed at
+TATA 1MG OKHLA
+Address: 2nd Floor, B-225, Okhla Phase I,
+Okhla Industrial Estate, New Delhi, Delhi
+110020
+Page 7 of 12
+Thyroid Stimulating Hormone, Ultrasensitive
+Thyroid Stimulating Hormone -
+Ultrasensitive
+0.911
+uIU/ml
+0.55-4.78
+CLIA
+Comment:
+ 
+Pregnancy 
+Reference ranges for TSH (μIU/ml) [As per American thyroid
+Association]
+1st
+trimester
+0.1-2.5 
+2nd
+trimester
+0.2-3.0 
+3rd
+trimester
+0.3-3.0 
+ 
+TSH levels are subject to circadian variation, reaching peak levels between 2 - 4.a.m. and at a minimum between 6-10 pm
+.
+The variation is of the order of 50%, hence time of the day has influence on the measured serum TSH concentrations.
+TSH is secreted in a dual fashion: Intermittent pulses constitute 60-70% of total amount, background continuous secretion
+is 30-40%.These pulses occur regularly every 1-3 hrs.
+TSH is a very sensitive and specific parameter for assessing thyroid function and is particularly suitable for early detection
+or exclusion of disorders in the central regulating circuit between the hypothalamus, pituitary and thyroid.
+Changes in thyroid status are typically associated with concordant changes in T3, T4 and TSH levels.
+For the diagnosis of hypothyroidism and hyperthyroidism, sole dependence on TSH should not be done and assay needs
+to be interpreted with the clinical condition & other investigations.
+Serum TSH level changes significantly in response to even minor changes in thyroid hormones.
+Transient increase in TSH level or an abnormal TSH levels can be seen in various nonthyroidal diseases.
+Unexpectedly abnormal or discordant thyroid test values may be seen with some rare, but clinically significant conditions
+such as central hypothyroidism, TSH-secreting pituitary tumors, thyroid hormone resistance, or the presence of
+heterophilic antibodies (HAMA) or thyroid hormone autoantibodies. 
+PO No :PO10001482847-790
+Customer Name
+: Mr.MAYANK GUPTA
+Collected Via
+: TATA 1MG OKHLA
+Age/Gender
+: 20Y 2M 7D /Male    
+Referred By
+: Dr.
+Lab Visit ID
+: OKH2825002
+Collection Date
+: 28/Feb/2026 09:30AM
+Barcode ID/Order ID
+: D29401039 / 16024076
+Report Date
+: 28/Feb/2026 03:25PM
+Sample Type
+: Serum
+Report Status
+: Final Report
+IMMUNOLOGY
+GOOD HEALTH SILVER PACKAGE WITH SMART REPORT
+Test Name
+Result
+Unit
+Bio. Ref. Interval
+Method
+This test has been performed at
+TATA 1MG OKHLA
+Address: 2nd Floor, B-225, Okhla Phase I,
+Okhla Industrial Estate, New Delhi, Delhi
+110020
+Page 8 of 12
+TSH
+T3
+T4
+Interpretation
+High
+Normal
+Normal
+Subclinical Hypothyroidism
+Low
+Normal
+Normal
+Subclinical Hyperthyroidism
+High
+High
+High
+Secondary Hyperthyroidism
+Low
+High/Normal
+High/Normal
+Hyperthyroidism
+Low
+Low
+Low
+Non thyroidal illness / Secondary
+Hypothyroidism
+PO No :PO10001482847-790
+Customer Name
+: Mr.MAYANK GUPTA
+Collected Via
+: TATA 1MG OKHLA
+Age/Gender
+: 20Y 2M 7D /Male    
+Referred By
+: Dr.
+Lab Visit ID
+: OKH2825002
+Collection Date
+: 28/Feb/2026 09:30AM
+Barcode ID/Order ID
+: D29401039 / 16024076
+Report Date
+: 28/Feb/2026 03:25PM
+Sample Type
+: Serum
+Report Status
+: Final Report
+IMMUNOLOGY
+GOOD HEALTH SILVER PACKAGE WITH SMART REPORT
+Test Name
+Result
+Unit
+Bio. Ref. Interval
+Method
+This test has been performed at
+TATA 1MG OKHLA
+Address: 2nd Floor, B-225, Okhla Phase I,
+Okhla Industrial Estate, New Delhi, Delhi
+110020
+Page 9 of 12
+Urine Routine & Microscopy
+Urine Routine
+Automated
+Physical & Chemical Examination
+Colour
+Yellow
+Pale Yellow
+Optical array
+Appearance
+Clear
+Clear
+Optical array
+Specific gravity
+1.022
+1.000–1.030
+Refractometry
+pH
+6.0
+5.0 - 8.0
+Double Indicator
+Glucose
+Negative
+Negative
+Glucose-oxidase
+Protein
+Negative
+Negative
+Tetra-bromphenol blue
+Ketones
+Negative
+Negative
+Sodium Nitroprusside
+Blood
+Negative
+Negative
+Tetramethyl benzidine
+Bilirubin
+Negative
+Negative
+Diazonium salt
+Urobilinogen
+Normal
+Normal
+Diazonium salt
+Leucocyte Esterase
+Negative
+Negative
+Carboxylic acid ester
+Nitrite
+Negative
+Negative
+Griess reaction
+Ascorbic acid
+Negative
+Negative
+Indophenol
+Microscopic Examination
+Pus cells
+0.60
+/hpf
+0.0-5.0
+Red Blood Cells
+0.40
+/hpf
+0.0-2.0
+Epithelial cells
+0.00
+/hpf
+0.0-5.0
+Yeast
+0.00
+/hpf
+0.0-1.0
+Bacteria
+18.40
+/hpf
+0.0-80.0
+Hyaline casts
+0.00
+/hpf
+0.0-5.0
+RBC casts
+0.00
+/hpf
+0.0-0.99
+WBC casts
+0.00
+/hpf
+0.0-0.99
+Hyaline-granular casts
+0.00
+/hpf
+0.0-0.99
+Fatty casts
+0.00
+/hpf
+0.0-0.99
+Granular casts
+0.00
+/hpf
+0.0-0.99
+Waxy casts
+0.00
+/hpf
+0.0-0.99
+Microorganism casts
+0.00
+/hpf
+0.0-0.99
+PO No :PO10001482847-790
+Customer Name
+: Mr.MAYANK GUPTA
+Collected Via
+: TATA 1MG OKHLA
+Age/Gender
+: 20Y 2M 7D /Male    
+Referred By
+: Dr.
+Lab Visit ID
+: OKH2825002
+Collection Date
+: 28/Feb/2026 09:30AM
+Barcode ID/Order ID
+: D29401042 / 16024076
+Report Date
+: 28/Feb/2026 05:02PM
+Sample Type
+: Urine
+Report Status
+: Final Report
+CLINICAL PATHOLOGY
+GOOD HEALTH SILVER PACKAGE WITH SMART REPORT
+Test Name
+Result
+Unit
+Bio. Ref. Interval
+Method
+This test has been performed at
+TATA 1MG OKHLA
+Address: 2nd Floor, B-225, Okhla Phase I,
+Okhla Industrial Estate, New Delhi, Delhi
+110020
+Page 10 of 12
+Calcium oxalate monohydrate crystals
+0.00
+/hpf
+0.0-0.99
+Calcium oxalate dihydrate crystals
+0.90
+/hpf
+0.0-0.99
+Triple phosphate crystals
+0.00
+/hpf
+0.0-0.99
+Uric acid crystals
+0.00
+/hpf
+0.0-0.99
+Calcium phosphate
+0.00
+/hpf
+0.0-0.99
+Cystine crystals
+0.00
+/hpf
+0.0-0.99
+Leucine crystals
+0.00
+/hpf
+0.0-0.99
+Tyrosine crystals
+0.00
+/hpf
+0.0-0.99
+Amorphous Material
+0.10
+/hpf
+0.0-0.99
+Comment:
+Urine microscopy is done in centrifuged urine specimens.
+Results should be interpreted in conjunction with clinical findings and other laboratory investigations.
+For optimum results, the sample should be a first-void, mid-stream urine collected in a clean, dry, and sterile container.
+Contamination from vagina, urethra, perineum may affect results.
+Presence of red blood cells may be influenced by menstruation.
+Certain medications, dehydration, or supplements may impact results.
+Microscopy findings are semi-quantitative and do not confirm infection; urine culture may be required.
+Trace proteinuria may be observed in various physiological conditions such as prolonged recumbency, strenuous exercise,
+or a high-protein diet.
+Interference: False-positive results for bile pigments, protein, glucose, and nitrites may occur due to disinfectants,
+peroxide-based cleaning agents, therapeutic dyes, vitamin C, or certain medications.
+Ascorbic acid (Vitamin C): May interfere with glucose, nitrite, bilirubin, and blood results; repeat testing is recommended
+after at least 10 hours or next day after stopping vitamin C.
+Blood: Small amounts of blood may not change urine colour and are detectable only by tests; false positives may occur
+due to infection or contamination. Occasionally strip tests may show higher value than microscopy due to lysed RBC.
+Leukocyte esterase: Results may be influenced by drugs, coloured compounds, high glucose or protein, and urine
+concentration; false positives can occur due to vaginal contamination or preservatives. Occasionally strip values may
+exceed microscopy due to lysed white blood cells or pus cells.

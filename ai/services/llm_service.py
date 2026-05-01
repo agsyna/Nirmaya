@@ -24,6 +24,7 @@ def generate_report_summary(evaluated_data: Dict[str, Any]) -> str:
         f"Overall Health Risk: {evaluated_data.get('overall_health_risk', 'Unknown')}\n"
         f"Lab Parameters:\n{formatted_data}\n\n"
         "Highlight any 'CRITICAL' or 'High/Low' values in simple terms. "
+        "CRITICAL INSTRUCTION: Do NOT describe any parameter as 'critical' or 'abnormal' if its Status is 'Normal'. "
         "Always add a disclaimer to consult a real doctor."
     )
 
