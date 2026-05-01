@@ -57,11 +57,13 @@ async def analyze_report(
         extracted_data = analyze_parsed_text(raw_text, report_type)
         
         # Initialize final return dict
+        report_id = str(uuid.uuid4())
         response_data = {
             "status": "success",
             "patient_id": patient_id,
             "report_type": report_type,
-            "report_id": str(uuid.uuid4()) # Generate a unique ID for this report
+            "report_id": report_id,
+            "raw_text": raw_text  # Include for debugging / Flutter display
         }
         
         # 3. Evaluation & Summarization (if it's a lab report)

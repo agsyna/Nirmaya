@@ -12,3 +12,4 @@ xgboost
 scikit-learn
 pymupdf
 Pillow
+rapidfuzz
