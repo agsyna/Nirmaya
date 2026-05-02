@@ -1,3 +1,8 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
+
 import '../../core/services/api_service.dart';
 import '../models/report_model.dart';
 
@@ -43,29 +48,74 @@ class ReportService {
     }
   }
 
-  // ==================== Get Upload URL ====================
-  Future<Map<String, dynamic>> getUploadUrl({
-    required String fileName,
-    required String contentType,
+  // ==================== Upload File (from File) ====================
+  Future<Map<String, dynamic>> uploadFile({
+    required File file,
     String folder = 'reports',
   }) async {
     try {
+      final fileName = file.path.split('/').last;
+      debugPrint('Uploading file: $fileName to folder: $folder');
+
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(
+          file.path,
+          filename: fileName,
+        ),
+        'folder': folder,
+      });
+
       final response = await _api.post(
-        '/patient/upload-url',
-        data: {
-          'fileName': fileName,
-          'contentType': contentType,
-          'folder': folder,
-        },
+        '/patient/uploads/file',
+        data: formData,
       );
 
       final data = response.data;
       if (data['status'] == 'success') {
+        debugPrint('File uploaded successfully: ${data['data']}');
         return data['data'];
       } else {
-        throw Exception(data['message'] ?? 'Failed to get upload URL');
+        debugPrint('Failed to upload file: ${data['message']}');
+        throw Exception(data['message'] ?? 'Failed to upload file');
       }
     } catch (e) {
+      debugPrint('Error in uploadFile: $e');
+      rethrow;
+    }
+  }
+
+  // ==================== Upload File (from bytes) ====================
+  Future<Map<String, dynamic>> uploadFileBytes({
+    required List<int> fileBytes,
+    required String fileName,
+    String folder = 'reports',
+  }) async {
+    try {
+      debugPrint('Uploading file from bytes: $fileName to folder: $folder');
+
+      final formData = FormData.fromMap({
+        'file': MultipartFile.fromBytes(
+          fileBytes,
+          filename: fileName,
+        ),
+        'folder': folder,
+      });
+
+      final response = await _api.post(
+        '/patient/uploads/file',
+        data: formData,
+      );
+
+      final data = response.data;
+      if (data['status'] == 'success') {
+        debugPrint('File uploaded successfully: ${data['data']}');
+        return data['data'];
+      } else {
+        debugPrint('Failed to upload file: ${data['message']}');
+        throw Exception(data['message'] ?? 'Failed to upload file');
+      }
+    } catch (e) {
+      debugPrint('Error in uploadFileBytes: $e');
       rethrow;
     }
   }
@@ -100,6 +150,7 @@ class ReportService {
         throw Exception(data['message'] ?? 'Failed to finalize upload');
       }
     } catch (e) {
+      debugPrint('Error in finalizeUpload: $e');
       rethrow;
     }
   }

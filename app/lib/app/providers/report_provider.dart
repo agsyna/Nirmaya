@@ -76,25 +76,18 @@ class ReportProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Step 1: Get signed upload URL
-      final uploadData = await _reportService.getUploadUrl(
+      // Step 1: Upload file directly to backend (multipart form data)
+      debugPrint('Uploading file: $fileName');
+      final uploadData = await _reportService.uploadFileBytes(
+        fileBytes: fileBytes,
         fileName: fileName,
-        contentType: contentType,
         folder: type == 'prescription' ? 'prescriptions' : 'reports',
       );
 
-      final signedUrl = uploadData['signedUrl'];
       final path = uploadData['path'];
+      debugPrint('File uploaded, path: $path');
 
-      // Step 2: Upload file to Supabase
-      await ApiService().uploadToSignedUrl(
-        signedUrl,
-        fileBytes,
-        fileName,
-        contentType,
-      );
-
-      // Step 3: Finalize upload
+      // Step 2: Finalize upload with metadata
       final report = await _reportService.finalizeUpload(
         path: path,
         type: type,
