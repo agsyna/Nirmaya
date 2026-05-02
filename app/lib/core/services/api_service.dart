@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/rendering.dart';
 import '../constants/app_constants.dart';
 import 'storage_service.dart';
 
@@ -45,6 +46,10 @@ class ApiService {
     String path, {
     dynamic data,
   }) async {
+    debugPrint('POST Request to $path with data: $data');
+    debugPrint('Full URL: ${_dio.options.baseUrl}$path');
+    debugPrint('data type: ${data.runtimeType}');
+    debugPrint('data content: $data');
     return await _dio.post(path, data: data);
   }
 
