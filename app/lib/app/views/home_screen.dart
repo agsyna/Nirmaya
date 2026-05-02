@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import '../../core/constants/app_colors.dart';
+import '../providers/auth_provider.dart';
 import '../providers/home_view_model.dart';
 import 'access_screen.dart';
+import 'records_screen.dart';
+import 'medications_screen.dart';
+import 'login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -9,7 +15,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F7),
+      backgroundColor: AppColors.background,
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -44,18 +50,17 @@ class HomeScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 50, 20, 80),
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF6A2C5B), Color(0xFF4A1F40)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        gradient: AppColors.primaryGradient,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(16),
           bottomRight: Radius.circular(16),
         ),
       ),
-      child: Consumer<HomeViewModel>(
-        builder: (context, vm, _) {
+      child: Consumer<AuthProvider>(
+        builder: (context, authProvider, _) {
+          final user = authProvider.user;
+          final vm = context.watch<HomeViewModel>();
+
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -64,19 +69,22 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.menu, color: Colors.white70),
+                    GestureDetector(
+                      onTap: () => _showDrawerMenu(context),
+                      child: const Icon(Icons.menu, color: Colors.white70),
+                    ),
                     const SizedBox(height: 20),
 
-                    const Text(
+                    Text(
                       "Welcome",
-                      style: TextStyle(color: Colors.white70),
+                      style: GoogleFonts.poppins(color: Colors.white70),
                     ),
 
                     const SizedBox(height: 6),
 
                     Text(
-                      vm.user.name,
-                      style: const TextStyle(
+                      user?.name ?? vm.user.name,
+                      style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -87,11 +95,14 @@ class HomeScreen extends StatelessWidget {
 
                     Row(
                       children: [
-                        _info("Age", "${vm.user.age} yrs"),
+                        _info("Age", "${user?.age ?? vm.user.age} yrs"),
                         const SizedBox(width: 20),
-                        _info("Gender", vm.user.gender),
+                        _info("Gender", user?.gender ?? vm.user.gender),
                         const SizedBox(width: 20),
-                        _info("User ID", vm.user.id),
+                        _info(
+                          "Blood",
+                          user?.bloodGroup ?? "—",
+                        ),
                       ],
                     ),
                   ],
@@ -99,7 +110,23 @@ class HomeScreen extends StatelessWidget {
               ),
 
               // RIGHT SIDE
-             const Icon(Icons.qr_code_scanner, size: 40),
+              GestureDetector(
+                onTap: () {
+                  // QR code scanner
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.qr_code_scanner,
+                    size: 28,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             ],
           );
         },
@@ -114,7 +141,7 @@ class HomeScreen extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: GoogleFonts.poppins(
             color: Colors.white70,
             fontSize: 11,
           ),
@@ -122,7 +149,7 @@ class HomeScreen extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
+          style: GoogleFonts.poppins(
             color: Colors.white,
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -137,23 +164,32 @@ class HomeScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _navCircle(Icons.emergency, "Emergency", () {}),
-        _navCircle(Icons.description, "Records", () {}),
+        _navCircle(Icons.emergency, "Emergency", () {
+          // TODO: Emergency SOS
+        }),
+        _navCircle(Icons.description, "Records", () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const RecordsScreen()),
+          );
+        }),
         _navCircle(Icons.link, "Access", () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => const AccessScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const AccessScreen()),
           );
         }),
-        _navCircle(Icons.medication, "Medication", () {}),
+        _navCircle(Icons.medication, "Medication", () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const MedicationsScreen()),
+          );
+        }),
       ],
     );
   }
 
-  Widget _navCircle(
-      IconData icon, String label, VoidCallback onTap) {
+  Widget _navCircle(IconData icon, String label, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -172,12 +208,12 @@ class HomeScreen extends StatelessWidget {
                 )
               ],
             ),
-            child: Icon(icon, color: const Color(0xFF5B2E5A)),
+            child: Icon(icon, color: AppColors.primary),
           ),
           const SizedBox(height: 8),
           Text(
             label,
-            style: const TextStyle(fontSize: 12),
+            style: GoogleFonts.poppins(fontSize: 12),
           ),
         ],
       ),
@@ -191,12 +227,12 @@ class HomeScreen extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "Audit Logs",
-              style: TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF2C2C2C),
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 16),
@@ -218,13 +254,24 @@ class HomeScreen extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.access_time,
-                          color: Colors.grey),
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: AppColors.primarySurface,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.access_time,
+                          color: AppColors.primary,
+                          size: 18,
+                        ),
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           "${log.doctorName} accessed your reports at ${_formatTime(log.timestamp)}",
-                          style: const TextStyle(fontSize: 13),
+                          style: GoogleFonts.poppins(fontSize: 13),
                         ),
                       )
                     ],
@@ -250,5 +297,83 @@ class HomeScreen extends StatelessWidget {
     } else {
       return '${diff.inDays}d ago';
     }
+  }
+
+  // ================= DRAWER MENU =================
+  void _showDrawerMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.divider,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            _menuItem(Icons.person_outline, 'Profile', () {
+              Navigator.pop(ctx);
+            }),
+            _menuItem(Icons.description, 'Medical Records', () {
+              Navigator.pop(ctx);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const RecordsScreen()),
+              );
+            }),
+            _menuItem(Icons.medication, 'Medications', () {
+              Navigator.pop(ctx);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MedicationsScreen()),
+              );
+            }),
+            _menuItem(Icons.settings, 'Settings', () {
+              Navigator.pop(ctx);
+            }),
+            const Divider(),
+            _menuItem(Icons.logout, 'Logout', () async {
+              Navigator.pop(ctx);
+              await context.read<AuthProvider>().logout();
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (route) => false,
+                );
+              }
+            }, color: AppColors.error),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _menuItem(IconData icon, String label, VoidCallback onTap,
+      {Color? color}) {
+    return ListTile(
+      leading: Icon(icon, color: color ?? AppColors.primary),
+      title: Text(
+        label,
+        style: GoogleFonts.poppins(
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+          color: color ?? AppColors.textPrimary,
+        ),
+      ),
+      onTap: onTap,
+    );
   }
 }
