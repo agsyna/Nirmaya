@@ -44,6 +44,7 @@ class HomeViewModel extends ChangeNotifier {
     name: 'Guest',
     age: 0,
     gender: 'Unknown',
+    profileImageUrl: '',
   );
   
   List<AuditLog> get logs => _auditLogs;

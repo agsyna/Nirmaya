@@ -28,6 +28,16 @@ class ApiService {
         handler.next(error);
       },
     ));
+
+    // Add logging interceptor for api requests and responses
+    _dio.interceptors.add(LogInterceptor(
+      request: true,
+      requestHeader: true,
+      requestBody: true,
+      responseHeader: true,
+      responseBody: true,
+      error: true,
+    ));
   }
 
   late final Dio _dio;

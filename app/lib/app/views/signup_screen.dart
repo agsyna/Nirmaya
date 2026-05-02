@@ -458,10 +458,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 hint: 'ft',
                 prefixIcon: Icons.height,
                 keyboardType: TextInputType.number,
-                suffixIcon: Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: Text('ft', style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textSecondary)),
-                ),
+                // suffixIcon: Padding(
+                //   padding: const EdgeInsets.only(right: 12),
+                //   child: Text('ft', style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textSecondary)),
+                // ),
               ),
             ),
             const SizedBox(width: 12),
@@ -472,10 +472,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 hint: 'in',
                 prefixIcon: Icons.straighten,
                 keyboardType: TextInputType.number,
-                suffixIcon: Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: Text('in', style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textSecondary)),
-                ),
+                //suffixIcon: Padding(
+                  //padding: const EdgeInsets.only(right: 12),
+                  //child: Text('in', style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textSecondary)),
+                //),
               ),
             ),
           ],

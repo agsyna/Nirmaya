@@ -22,10 +22,11 @@ class _RecordsScreenState extends State<RecordsScreen> {
   final List<String> _filters = [
     'All',
     'Report',
-    'Prescription',
-    'Scan',
-    'Vaccination',
-    'Other',
+    'Prescription'
+    // ,
+    // 'Scan',
+    // 'Vaccination',
+    // 'Other',
   ];
 
   @override

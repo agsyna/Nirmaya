@@ -25,10 +25,11 @@ class AppConstants {
   // Report Types
   static const List<String> reportTypes = [
     'report',
-    'prescription',
-    'scan',
-    'vaccination',
-    'other',
+    'prescription'
+    // ,
+    // 'scan',
+    // 'vaccination',
+    // 'other',
   ];
 
   // Medication Frequencies
