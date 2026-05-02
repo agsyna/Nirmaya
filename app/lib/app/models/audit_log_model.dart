@@ -10,4 +10,15 @@ class AuditLog {
     required this.action,
     required this.timestamp,
   });
+
+  factory AuditLog.fromJson(Map<String, dynamic> json) {
+    return AuditLog(
+      id: json['id']?.toString() ?? '',
+      doctorName: json['doctorName'] ?? json['actorName'] ?? 'System',
+      action: json['action'] ?? 'Unknown action',
+      timestamp: json['timestamp'] != null 
+          ? DateTime.parse(json['timestamp']) 
+          : DateTime.now(),
+    );
+  }
 }

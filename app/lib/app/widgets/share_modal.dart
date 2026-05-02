@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/share_view_model.dart';
+import '../providers/auth_provider.dart';
 
 class ShareModal extends StatefulWidget {
   final VoidCallback? onShareComplete;
@@ -281,8 +282,9 @@ class _ShareModalState extends State<ShareModal> {
                           onPressed: viewModel.isLoading
                               ? null
                               : () async {
+                                  final user = context.read<AuthProvider>().user;
                                   final success = await viewModel.generateShareLink(
-                                    patientId: 'default-patient-id', // TODO: Pass from parent
+                                    patientId: user?.patientId ?? user?.id ?? 'unknown-patient',
                                   );
                                   // Show success dialog using post-frame callback to avoid async gap
                                   if (success &&

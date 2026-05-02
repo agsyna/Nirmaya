@@ -164,8 +164,40 @@ class HomeScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _navCircle(Icons.emergency, "Emergency", () {
-          // TODO: Emergency SOS
+        _navCircle(Icons.emergency, "Emergency", () async {
+          final confirm = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text("Emergency SOS"),
+              content: const Text("Are you sure you want to trigger an emergency alert?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                  child: const Text("Trigger SOS"),
+                ),
+              ],
+            ),
+          );
+
+          if (confirm == true && context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Triggering Emergency SOS...')),
+            );
+            final success = await context.read<HomeViewModel>().triggerEmergency();
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(success ? 'Emergency SOS Sent!' : 'Failed to send SOS'),
+                  backgroundColor: success ? Colors.green : Colors.red,
+                ),
+              );
+            }
+          }
         }),
         _navCircle(Icons.description, "Records", () {
           Navigator.push(
@@ -224,61 +256,90 @@ class HomeScreen extends StatelessWidget {
   Widget _buildAuditLogs() {
     return Consumer<HomeViewModel>(
       builder: (context, vm, _) {
+        if (vm.isLoading && vm.logs.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Audit Logs",
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Audit Logs",
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh, size: 20),
+                  onPressed: () => vm.refresh(),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
 
-            Column(
-              children: vm.logs.map((log) {
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 14),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 6,
-                      )
-                    ],
+            if (vm.logs.isEmpty)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Text(
+                    "No audit logs found.",
+                    style: GoogleFonts.poppins(color: Colors.grey),
                   ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: AppColors.primarySurface,
-                          borderRadius: BorderRadius.circular(10),
+                ),
+              )
+            else
+              Column(
+                children: vm.logs.map((log) {
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 14),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 6,
+                        )
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: AppColors.primarySurface,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.access_time,
+                            color: AppColors.primary,
+                            size: 18,
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.access_time,
-                          color: AppColors.primary,
-                          size: 18,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          "${log.doctorName} accessed your reports at ${_formatTime(log.timestamp)}",
-                          style: GoogleFonts.poppins(fontSize: 13),
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            "${log.doctorName} ${log.action} at ${_formatTime(log.timestamp)}",
+                            style: GoogleFonts.poppins(fontSize: 13),
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
           ],
         );
       },

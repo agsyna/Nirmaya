@@ -141,7 +141,7 @@ class ReportService {
       if (documentDate != null) body['documentDate'] = documentDate;
       if (metadata != null) body['metadata'] = metadata;
 
-      final response = await _api.post('/patient/finalize-upload', data: body);
+      final response = await _api.post('/patient/uploads/finalize', data: body);
       final data = response.data;
 
       if (data['status'] == 'success') {
