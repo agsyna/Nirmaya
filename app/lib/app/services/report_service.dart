@@ -10,10 +10,18 @@ class ReportService {
   final ApiService _api = ApiService();
 
   // ==================== Get All Reports ====================
-  Future<List<Report>> getReports({int limit = 10, int offset = 0}) async {
+  Future<List<Report>> getReports({
+    int limit = 10,
+    int offset = 0,
+    String endpoint = 'reports',
+  }) async {
     try {
+      final path = endpoint == 'prescriptions'
+          ? '/patient/prescriptions'
+          : '/patient/reports';
+
       final response = await _api.get(
-        '/patient/reports',
+        path,
         queryParameters: {'limit': limit, 'offset': offset},
       );
 
@@ -22,7 +30,7 @@ class ReportService {
         final List list = data['data'] ?? [];
         return list.map((e) => Report.fromJson(e)).toList();
       } else {
-        throw Exception(data['message'] ?? 'Failed to load reports');
+        throw Exception(data['message'] ?? 'Failed to load records');
       }
     } catch (e) {
       rethrow;

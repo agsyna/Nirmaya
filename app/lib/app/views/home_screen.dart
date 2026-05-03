@@ -8,6 +8,8 @@ import 'access_screen.dart';
 import 'records_screen.dart';
 import 'medications_screen.dart';
 import 'login_screen.dart';
+import 'emergency_screen.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -112,7 +114,71 @@ class HomeScreen extends StatelessWidget {
               // RIGHT SIDE
               GestureDetector(
                 onTap: () {
-                  // QR code scanner
+                  final patientId = user?.patientId ?? vm.user.patientId ?? user?.id ?? vm.user.id;
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor: AppColors.surface,
+                      title: Text(
+                        "Your QR Profile",
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 232,
+                            height: 232,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: SizedBox(
+                              width: 200,
+                              height: 200,
+                              child: QrImageView(
+                                data: patientId,
+                                version: QrVersions.auto,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            "Scan to access profile",
+                            style: GoogleFonts.poppins(
+                              color: AppColors.textSecondary,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "ID: $patientId",
+                            style: GoogleFonts.poppins(
+                              color: AppColors.textLight,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(
+                            "Close",
+                            style: GoogleFonts.poppins(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 },
                 child: Container(
                   padding: const EdgeInsets.all(10),
@@ -164,40 +230,11 @@ class HomeScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _navCircle(Icons.emergency, "Emergency", () async {
-          final confirm = await showDialog<bool>(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text("Emergency SOS"),
-              content: const Text("Are you sure you want to trigger an emergency alert?"),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: const Text("Cancel"),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  style: TextButton.styleFrom(foregroundColor: Colors.red),
-                  child: const Text("Trigger SOS"),
-                ),
-              ],
-            ),
+        _navCircle(Icons.emergency, "Emergency", () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const EmergencyScreen()),
           );
-
-          if (confirm == true && context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Triggering Emergency SOS...')),
-            );
-            final success = await context.read<HomeViewModel>().triggerEmergency();
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(success ? 'Emergency SOS Sent!' : 'Failed to send SOS'),
-                  backgroundColor: success ? Colors.green : Colors.red,
-                ),
-              );
-            }
-          }
         }),
         _navCircle(Icons.description, "Records", () {
           Navigator.push(

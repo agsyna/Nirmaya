@@ -252,10 +252,15 @@ class _SignupScreenState extends State<SignupScreen> {
         const SizedBox(height: 18),
         CustomTextField(
           controller: _phoneController,
-          label: 'Phone (Optional)',
+          label: 'Phone ',
           hint: '+91XXXXXXXXXX',
           prefixIcon: Icons.phone_outlined,
           keyboardType: TextInputType.phone,
+          validator: (value) {
+            if (value == null || value.isEmpty) return 'Please enter your phone number';
+            if (value.length < 10) return 'Please enter a valid phone number';
+            return null;
+          },
         ),
 
         const SizedBox(height: 24),

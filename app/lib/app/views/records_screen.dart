@@ -17,23 +17,18 @@ class RecordsScreen extends StatefulWidget {
 
 class _RecordsScreenState extends State<RecordsScreen> {
   final ScrollController _scrollController = ScrollController();
-  String _selectedFilter = 'All';
+  String _selectedTab = 'Report';
 
-  final List<String> _filters = [
-    'All',
+  final List<String> _tabs = [
     'Report',
-    'Prescription'
-    // ,
-    // 'Scan',
-    // 'Vaccination',
-    // 'Other',
+    'Prescription',
   ];
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ReportProvider>().loadReports(refresh: true);
+      context.read<ReportProvider>().loadReports(refresh: true, endpoint: 'reports');
     });
 
     _scrollController.addListener(() {
@@ -48,6 +43,10 @@ class _RecordsScreenState extends State<RecordsScreen> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  String _getEndpoint(String tab) {
+    return tab == 'Report' ? 'reports' : 'prescriptions';
   }
 
   @override
@@ -65,13 +64,16 @@ class _RecordsScreenState extends State<RecordsScreen> {
             MaterialPageRoute(builder: (_) => const AddReportScreen()),
           );
           if (result == true && mounted) {
-            context.read<ReportProvider>().loadReports(refresh: true);
+            context.read<ReportProvider>().loadReports(
+              refresh: true,
+              endpoint: _getEndpoint(_selectedTab),
+            );
           }
         },
         backgroundColor: AppColors.primary,
         icon: const Icon(Icons.add, color: Colors.white),
         label: Text(
-          'Add Report',
+          'Add Record',
           style: GoogleFonts.poppins(
             color: Colors.white,
             fontWeight: FontWeight.w600,
@@ -80,19 +82,26 @@ class _RecordsScreenState extends State<RecordsScreen> {
       ),
       body: Column(
         children: [
-          // Filter chips
+          // Tab buttons
           Container(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
-                children: _filters.map((filter) {
-                  final isSelected = _selectedFilter == filter;
+                children: _tabs.map((tab) {
+                  final isSelected = _selectedTab == tab;
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: GestureDetector(
-                      onTap: () => setState(() => _selectedFilter = filter),
+                      onTap: () => setState(() {
+                        _selectedTab = tab;
+                        // Load data for the selected tab
+                        context.read<ReportProvider>().loadReports(
+                          refresh: true,
+                          endpoint: _getEndpoint(tab),
+                        );
+                      }),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         padding: const EdgeInsets.symmetric(
@@ -120,7 +129,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                               : null,
                         ),
                         child: Text(
-                          filter,
+                          tab,
                           style: GoogleFonts.poppins(
                             fontSize: 13,
                             fontWeight:
@@ -138,7 +147,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
             ),
           ),
 
-          // Reports list
+          // Records list
           Expanded(
             child: Consumer<ReportProvider>(
               builder: (context, provider, _) {
@@ -170,8 +179,10 @@ class _RecordsScreenState extends State<RecordsScreen> {
                         ),
                         const SizedBox(height: 16),
                         TextButton(
-                          onPressed: () =>
-                              provider.loadReports(refresh: true),
+                          onPressed: () => provider.loadReports(
+                            refresh: true,
+                            endpoint: _getEndpoint(_selectedTab),
+                          ),
                           child: const Text('Retry'),
                         ),
                       ],
@@ -179,15 +190,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                   );
                 }
 
-                // Filter reports
-                final filteredReports = _selectedFilter == 'All'
-                    ? provider.reports
-                    : provider.reports
-                        .where((r) =>
-                            r.type == _selectedFilter.toLowerCase())
-                        .toList();
-
-                if (filteredReports.isEmpty) {
+                if (provider.reports.isEmpty) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -207,7 +210,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                         ),
                         const SizedBox(height: 20),
                         Text(
-                          'No records found',
+                          'No $_selectedTab records found',
                           style: GoogleFonts.poppins(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -216,7 +219,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Tap + to add your first medical record',
+                          'Tap + to add your first record',
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             color: AppColors.textSecondary,
@@ -229,14 +232,17 @@ class _RecordsScreenState extends State<RecordsScreen> {
 
                 return RefreshIndicator(
                   color: AppColors.primary,
-                  onRefresh: () => provider.loadReports(refresh: true),
+                  onRefresh: () => provider.loadReports(
+                    refresh: true,
+                    endpoint: _getEndpoint(_selectedTab),
+                  ),
                   child: ListView.builder(
                     controller: _scrollController,
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-                    itemCount: filteredReports.length +
+                    itemCount: provider.reports.length +
                         (provider.isLoading ? 1 : 0),
                     itemBuilder: (context, index) {
-                      if (index == filteredReports.length) {
+                      if (index == provider.reports.length) {
                         return const Center(
                           child: Padding(
                             padding: EdgeInsets.all(16),
@@ -247,7 +253,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                         );
                       }
 
-                      final report = filteredReports[index];
+                      final report = provider.reports[index];
                       return ReportCard(
                         report: report,
                         onTap: () async {
@@ -283,11 +289,11 @@ class _RecordsScreenState extends State<RecordsScreen> {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          'Delete Report',
+          'Delete Record',
           style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
         content: Text(
-          'Are you sure you want to delete this report? This action cannot be undone.',
+          'Are you sure you want to delete this record? This action cannot be undone.',
           style: GoogleFonts.poppins(fontSize: 14),
         ),
         actions: [

@@ -13,16 +13,29 @@ class ReportProvider extends ChangeNotifier {
   bool _hasMore = true;
   int _offset = 0;
   final int _limit = 10;
+  String _currentEndpoint = 'reports'; // 'reports' or 'prescriptions'
 
   List<Report> get reports => _reports;
   bool get isLoading => _isLoading;
   bool get isUploading => _isUploading;
   String? get errorMessage => _errorMessage;
   bool get hasMore => _hasMore;
+  String get currentEndpoint => _currentEndpoint;
 
   // ==================== Load Reports ====================
-  Future<void> loadReports({bool refresh = false}) async {
+  Future<void> loadReports({
+    bool refresh = false,
+    String endpoint = 'reports',
+  }) async {
     if (_isLoading) return;
+
+    // If endpoint changed, reset pagination
+    if (endpoint != _currentEndpoint) {
+      _currentEndpoint = endpoint;
+      _offset = 0;
+      _hasMore = true;
+      refresh = true;
+    }
 
     if (refresh) {
       _offset = 0;
@@ -37,6 +50,7 @@ class ReportProvider extends ChangeNotifier {
       final newReports = await _reportService.getReports(
         limit: _limit,
         offset: _offset,
+        endpoint: _currentEndpoint,
       );
 
       if (refresh) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_colors.dart';
 import '../providers/report_provider.dart';
 import '../widgets/custom_app_bar.dart';
@@ -128,6 +129,9 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                           ),
                         ),
                       ],
+
+                      // File Viewer
+                      _buildFileViewer(),
                     ],
                   ),
                 ),
@@ -150,5 +154,165 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
         ],
       ),
     );
+  }
+
+  String _getFileType(String fileUrl) {
+    final uri = Uri.parse(fileUrl);
+    final path = uri.path.toLowerCase();
+    if (path.endsWith('.pdf')) return 'pdf';
+    if (path.endsWith('.jpg') || path.endsWith('.jpeg')) return 'image';
+    if (path.endsWith('.png')) return 'image';
+    return 'unknown';
+  }
+
+  Widget _buildFileViewer() {
+    final fileUrl = _reportData!['fileUrl'] as String?;
+    if (fileUrl == null || fileUrl.isEmpty) return const SizedBox.shrink();
+
+    final fileType = _getFileType(fileUrl);
+
+    if (fileType == 'image') {
+      return Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: GestureDetector(
+              onTap: () => _openFile(fileUrl),
+              child: Image.network(
+                fileUrl,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
+                      color: AppColors.primary,
+                    ),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: AppColors.surface,
+                    padding: const EdgeInsets.all(20),
+                    child: Center(
+                      child: Text(
+                        'Failed to load image',
+                        style: GoogleFonts.poppins(color: AppColors.textSecondary),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+    } else if (fileType == 'pdf') {
+      return Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Icon(
+                Icons.picture_as_pdf,
+                color: AppColors.primary,
+                size: 48,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'PDF Report',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: () => _openFile(fileUrl),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                icon: const Icon(Icons.open_in_new),
+                label: Text(
+                  'View PDF',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Future<void> _openFile(String fileUrl) async {
+    try {
+      final uri = Uri.parse(fileUrl);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        // Try with platformDefault mode as fallback
+        try {
+          await launchUrl(uri, mode: LaunchMode.platformDefault);
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'No app found to open this file. Please install a PDF viewer or browser.',
+                  style: GoogleFonts.poppins(),
+                ),
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error opening file',
+              style: GoogleFonts.poppins(),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 }
