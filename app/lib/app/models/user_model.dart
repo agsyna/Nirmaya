@@ -45,15 +45,15 @@ class User {
     return User(
       id: userData['userId'] ?? '',
       name: userData['name'] ?? '',
-      age: userData['age'] ?? 0,
+      age: _parseAge(userData['age']),
       gender: userData['gender'] ?? '',
       profileImageUrl: '',
       email: userData['email'],
       phone: userData['phone'],
       type: userData['type'],
       bloodGroup: patientData['bloodGroup'],
-      height: (patientData['height'] as num?)?.toDouble(),
-      weight: (patientData['weight'] as num?)?.toDouble(),
+      height: _parseDouble(patientData['height']),
+      weight: _parseDouble(patientData['weight']),
       patientId: patientData['patientId'],
       emergencySosEnabled: patientData['emergencySosEnabled'],
       doctorId: doctorData['doctorId'],
@@ -71,15 +71,15 @@ class User {
     return User(
       id: userData['userId'] ?? '',
       name: userData['name'] ?? '',
-      age: userData['age'] ?? 0,
+      age: _parseAge(userData['age']),
       gender: userData['gender'] ?? '',
       profileImageUrl: '',
       email: userData['email'],
       phone: userData['phone'],
       type: userData['type'],
       bloodGroup: patientData['bloodGroup'],
-      height: (patientData['height'] as num?)?.toDouble(),
-      weight: (patientData['weight'] as num?)?.toDouble(),
+      height: _parseDouble(patientData['height']),
+      weight: _parseDouble(patientData['weight']),
       patientId: patientData['patientId'],
       emergencySosEnabled: patientData['emergencySosEnabled'],
       doctorId: doctorData['doctorId'],
@@ -113,15 +113,15 @@ class User {
     return User(
       id: json['id'] ?? '',
       name: json['name'] ?? '',
-      age: json['age'] ?? 0,
+      age: _parseAge(json['age']),
       gender: json['gender'] ?? '',
       profileImageUrl: json['profileImageUrl'] ?? '',
       email: json['email'],
       phone: json['phone'],
       type: json['type'],
       bloodGroup: json['bloodGroup'],
-      height: (json['height'] as num?)?.toDouble(),
-      weight: (json['weight'] as num?)?.toDouble(),
+      height: _parseDouble(json['height']),
+      weight: _parseDouble(json['weight']),
       patientId: json['patientId'],
       emergencySosEnabled: json['emergencySosEnabled'],
       doctorId: json['doctorId'],
@@ -129,5 +129,33 @@ class User {
       specialization: json['specialization'],
       doctorVerified: json['doctorVerified'],
     );
+  }
+
+  static int _parseAge(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) {
+      try {
+        return int.parse(value);
+      } catch (_) {
+        return 0;
+      }
+    }
+    return 0;
+  }
+
+  static double? _parseDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      try {
+        return double.parse(value);
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
   }
 }

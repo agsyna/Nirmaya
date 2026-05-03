@@ -64,11 +64,12 @@ class _LoginScreenState extends State<LoginScreen>
     if (success && mounted) {
       final user = authProvider.user;
       final isDoctor = user?.type == 'doctor';
-      
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => isDoctor ? const DoctorHomeScreen() : const HomeScreen(),
+          builder: (_) =>
+              isDoctor ? const DoctorHomeScreen() : const HomeScreen(),
         ),
       );
     }
@@ -168,7 +169,6 @@ class _LoginScreenState extends State<LoginScreen>
     return Scaffold(
       body: Container(
         width: double.infinity,
-        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFF6A2C5B), Color(0xFF3D1835)],
@@ -177,225 +177,249 @@ class _LoginScreenState extends State<LoginScreen>
           ),
         ),
         child: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                // Header
-                const SizedBox(height: 40),
-                FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(22),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.25),
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.health_and_safety,
-                          size: 42,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Welcome Back',
-                        style: GoogleFonts.poppins(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Sign in to continue',
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: Colors.white60,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints:
+                      BoxConstraints(minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 40),
 
-                const SizedBox(height: 40),
-
-                // Form Card
-                SlideTransition(
-                  position: _slideAnimation,
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 30,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CustomTextField(
-                              controller: _emailController,
-                              label: 'Email',
-                              hint: 'Enter your email',
-                              prefixIcon: Icons.email_outlined,
-                              keyboardType: TextInputType.emailAddress,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your email';
-                                }
-                                if (!value.contains('@')) {
-                                  return 'Please enter a valid email';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 20),
-                            CustomTextField(
-                              controller: _passwordController,
-                              label: 'Password',
-                              hint: 'Enter your password',
-                              prefixIcon: Icons.lock_outline,
-                              isPassword: true,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your password';
-                                }
-                                if (value.length < 8) {
-                                  return 'Password must be at least 8 characters';
-                                }
-                                return null;
-                              },
-                            ),
-
-                            const SizedBox(height: 12),
-
-                            // Forgot Password
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: GestureDetector(
-                                onTap: _showForgotPassword,
-                                child: Text(
-                                  'Forgot Password?',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 13,
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.w500,
+                        // Header
+                        FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 80,
+                                height: 80, // FIXED
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(22),
+                                  border: Border.all(
+                                    color:
+                                        Colors.white.withValues(alpha: 0.25),
                                   ),
                                 ),
+                                child: const Icon(
+                                  Icons.health_and_safety,
+                                  size: 42,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
+                              const SizedBox(height: 20),
+                              Text(
+                                'Welcome Back',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Sign in to continue',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  color: Colors.white60,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
 
-                            const SizedBox(height: 24),
+                        const SizedBox(height: 40),
 
-                            // Error Message
-                            Consumer<AuthProvider>(
-                              builder: (context, auth, _) {
-                                if (auth.errorMessage != null) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 16),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.errorLight,
-                                        borderRadius:
-                                            BorderRadius.circular(10),
+                        // Form Card
+                        Expanded(
+                          child: SlideTransition(
+                            position: _slideAnimation,
+                            child: FadeTransition(
+                              opacity: _fadeAnimation,
+                              child: Container(
+                                padding: const EdgeInsets.all(24),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(32),
+                                    topRight: Radius.circular(32),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.1),
+                                      blurRadius: 30,
+                                      offset: const Offset(0, 10),
+                                    ),
+                                  ],
+                                ),
+                                child: Form(
+                                  key: _formKey,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      CustomTextField(
+                                        controller: _emailController,
+                                        label: 'Email',
+                                        hint: 'Enter your email',
+                                        prefixIcon: Icons.email_outlined,
+                                        keyboardType:
+                                            TextInputType.emailAddress,
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Please enter your email';
+                                          }
+                                          if (!value.contains('@')) {
+                                            return 'Please enter a valid email';
+                                          }
+                                          return null;
+                                        },
                                       ),
-                                      child: Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.error_outline,
-                                            color: AppColors.error,
-                                            size: 18,
+                                      const SizedBox(height: 20),
+                                      CustomTextField(
+                                        controller: _passwordController,
+                                        label: 'Password',
+                                        hint: 'Enter your password',
+                                        prefixIcon: Icons.lock_outline,
+                                        isPassword: true,
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Please enter your password';
+                                          }
+                                          if (value.length < 8) {
+                                            return 'Password must be at least 8 characters';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                      const SizedBox(height: 12),
+
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: GestureDetector(
+                                          onTap: _showForgotPassword,
+                                          child: Text(
+                                            'Forgot Password?',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              color: AppColors.primary,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
-                                          const SizedBox(width: 8),
-                                          Expanded(
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 24),
+
+                                      Consumer<AuthProvider>(
+                                        builder: (context, auth, _) {
+                                          if (auth.errorMessage != null) {
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.only(
+                                                      bottom: 16),
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.all(12),
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      AppColors.errorLight,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10),
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.error_outline,
+                                                      color:
+                                                          AppColors.error,
+                                                      size: 18,
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    Expanded(
+                                                      child: Text(
+                                                        auth.errorMessage!,
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                          fontSize: 12,
+                                                          color:
+                                                              AppColors.error,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                          return const SizedBox.shrink();
+                                        },
+                                      ),
+
+                                      Consumer<AuthProvider>(
+                                        builder: (context, auth, _) {
+                                          return PrimaryButton(
+                                            text: 'Sign In',
+                                            isLoading: auth.isLoading,
+                                            onPressed: _login,
+                                          );
+                                        },
+                                      ),
+
+                                      const SizedBox(height: 20),
+
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'Don\'t have an account? ',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 13,
+                                              color:
+                                                  AppColors.textSecondary,
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (_) =>
+                                                      const SignupScreen(),
+                                                ),
+                                              );
+                                            },
                                             child: Text(
-                                              auth.errorMessage!,
+                                              'Sign Up',
                                               style: GoogleFonts.poppins(
-                                                fontSize: 12,
-                                                color: AppColors.error,
+                                                fontSize: 13,
+                                                color:
+                                                    AppColors.primary,
+                                                fontWeight:
+                                                    FontWeight.w600,
                                               ),
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  );
-                                }
-                                return const SizedBox.shrink();
-                              },
-                            ),
-
-                            // Login Button
-                            Consumer<AuthProvider>(
-                              builder: (context, auth, _) {
-                                return PrimaryButton(
-                                  text: 'Sign In',
-                                  isLoading: auth.isLoading,
-                                  onPressed: _login,
-                                );
-                              },
-                            ),
-
-                            const SizedBox(height: 20),
-
-                            // Sign Up
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Don\'t have an account? ',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 13,
-                                    color: AppColors.textSecondary,
+                                    ],
                                   ),
                                 ),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => const SignupScreen(),
-                                      ),
-                                    );
-                                  },
-                                  child: Text(
-                                    'Sign Up',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 13,
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 ),
-
-                const SizedBox(height: 40),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),

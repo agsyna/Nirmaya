@@ -11,6 +11,7 @@ import 'login_screen.dart';
 import 'emergency_screen.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'nominees_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -362,10 +363,10 @@ class HomeScreen extends StatelessWidget {
                         Container(
                           width: 36,
                           height: 36,
-                          decoration: BoxDecoration(
-                            color: AppColors.primarySurface,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                          // decoration: BoxDecoration(
+                          //   color: AppColors.primarySurface,
+                          //   borderRadius: BorderRadius.circular(10),
+                          // ),
                           child: const Icon(
                             Icons.access_time,
                             color: AppColors.primary,
@@ -466,6 +467,12 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 10),
                     _menuItem(Icons.person_outline, 'Profile', () {
                       Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ProfileScreen(),
+                        ),
+                      );
                     }),
                     _menuItem(Icons.medication, 'Nominees', () {
                       Navigator.pop(context);

@@ -112,14 +112,15 @@ class _NomineesScreenState extends State<NomineesScreen> {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        gradient: AppColors.primaryGradient,
+        color: Color.fromARGB(255, 69, 5, 69),
+        // gradient: AppColors.primaryGradient,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
-          BoxShadow(
-            color: AppColors.shadow,
-            blurRadius: 8,
-            offset: Offset(0, 3),
-          ),
+          // BoxShadow(
+          //   color: AppColors.shadow,
+          //   blurRadius: 8,
+          //   offset: Offset(0, 3),
+          // ),
         ],
       ),
       child: Row(

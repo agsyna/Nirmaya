@@ -127,8 +127,6 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Scan Patient QR', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.textPrimary,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),

@@ -121,20 +121,20 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              (user?.doctorVerified ?? false)
-                  ? Icons.verified
-                  : Icons.medical_services,
-              size: 28,
-              color: Colors.white,
-            ),
-          ),
+          // Container(
+          //   padding: const EdgeInsets.all(10),
+          //   decoration: BoxDecoration(
+          //     color: Colors.white.withValues(alpha: 0.15),
+          //     borderRadius: BorderRadius.circular(12),
+          //   ),
+          //   child: Icon(
+          //     (user?.doctorVerified ?? false)
+          //         ? Icons.verified
+          //         : Icons.medical_services,
+          //     size: 28,
+          //     color: Colors.white,
+          //   ),
+          // ),
         ],
       ),
     );
@@ -294,13 +294,13 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                 ),
                 child: Row(
                   children: [
-                    Container(
+                    SizedBox(
                       width: 36,
                       height: 36,
-                      decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      // decoration: BoxDecoration(
+                      //   color: statusColor.withValues(alpha: 0.12),
+                      //   borderRadius: BorderRadius.circular(10),
+                      // ),
                       child: Icon(
                         Icons.person_outline,
                         color: statusColor,

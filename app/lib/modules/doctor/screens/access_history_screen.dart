@@ -115,8 +115,6 @@ class _AccessHistoryScreenState extends State<AccessHistoryScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text('Access History', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.textPrimary,
         elevation: 0,
       ),
       body: Consumer<DoctorProvider>(

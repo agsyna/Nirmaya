@@ -1,3 +1,5 @@
+import 'nominee_model.dart';
+
 class Emergency {
   final String sosId;
   final String status; // active, resolved
@@ -10,6 +12,7 @@ class Emergency {
   final AffectedPatientProfile? affectedPatientProfile;
   final CriticalInfoShared? criticalInfoShared;
   final LatestHealthData? latestHealthData;
+  final List<Nominee> nominees;
   final String? message;
   final int? ambulanceEta;
 
@@ -25,6 +28,7 @@ class Emergency {
     this.affectedPatientProfile,
     this.criticalInfoShared,
     this.latestHealthData,
+    this.nominees = const [],
     this.message,
     this.ambulanceEta,
   });
@@ -33,14 +37,15 @@ class Emergency {
   bool get isResolved => status == 'resolved';
 
   factory Emergency.fromJson(Map<String, dynamic> json) {
+    final rawServiceTypes = json['serviceType'] ?? json['serviceTypes'];
+    final serviceType = rawServiceTypes is List
+        ? rawServiceTypes.map((type) => type.toString()).join(', ')
+        : rawServiceTypes?.toString() ?? '';
+
     return Emergency(
       sosId: json['sosId'] ?? json['id'] ?? '',
       status: json['status'] ?? 'active',
-      serviceType: json['serviceType'] is List
-          ? json['serviceType'].join(', ')
-          : (json['serviceType']?.toString() ??
-                json['serviceTypes']?.toString() ??
-                ''),
+      serviceType: serviceType,
       description: json['description'] ?? '',
       latitude: json['latitude']?.toString() ?? '0',
       longitude: json['longitude']?.toString() ?? '0',
@@ -59,6 +64,10 @@ class Emergency {
       latestHealthData: json['latestHealthData'] != null
           ? LatestHealthData.fromJson(json['latestHealthData'])
           : null,
+      nominees: (json['nominees'] as List?)
+              ?.map((entry) => Nominee.fromJson(entry))
+              .toList() ??
+          [],
       message: json['message'],
       ambulanceEta: json['ambulanceEta'],
     );
@@ -76,6 +85,7 @@ class Emergency {
     'affectedPatientProfile': affectedPatientProfile?.toJson(),
     'criticalInfoShared': criticalInfoShared?.toJson(),
     'latestHealthData': latestHealthData?.toJson(),
+    'nominees': nominees.map((entry) => entry.toJson()).toList(),
     'message': message,
     'ambulanceEta': ambulanceEta,
   };
@@ -121,6 +131,7 @@ class CriticalInfoShared {
   final String gender;
   final int? height;
   final int? weight;
+  final List<Nominee> nominees;
   final List<Allergy> allergies;
   final List<ChronicCondition> chronicConditions;
 
@@ -130,6 +141,7 @@ class CriticalInfoShared {
     required this.gender,
     this.height,
     this.weight,
+    required this.nominees,
     required this.allergies,
     required this.chronicConditions,
   });
@@ -141,14 +153,18 @@ class CriticalInfoShared {
       gender: (json['gender'] ?? '').toString().trim(),
       height: json['height'],
       weight: json['weight'],
+      nominees: (json['nominees'] as List?)
+              ?.map((entry) => Nominee.fromJson(entry))
+              .toList() ??
+          [],
       allergies:
           (json['allergies'] as List?)
-              ?.map((e) => Allergy.fromJson(e))
+              ?.map((entry) => Allergy.fromJson(entry))
               .toList() ??
           [],
       chronicConditions:
           (json['chronicConditions'] as List?)
-              ?.map((e) => ChronicCondition.fromJson(e))
+              ?.map((entry) => ChronicCondition.fromJson(entry))
               .toList() ??
           [],
     );
@@ -160,8 +176,9 @@ class CriticalInfoShared {
     'gender': gender,
     'height': height,
     'weight': weight,
-    'allergies': allergies.map((e) => e.toJson()).toList(),
-    'chronicConditions': chronicConditions.map((e) => e.toJson()).toList(),
+    'nominees': nominees.map((entry) => entry.toJson()).toList(),
+    'allergies': allergies.map((entry) => entry.toJson()).toList(),
+    'chronicConditions': chronicConditions.map((entry) => entry.toJson()).toList(),
   };
 }
 

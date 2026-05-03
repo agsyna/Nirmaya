@@ -3,6 +3,8 @@
 import '../../core/services/api_service.dart';
 import '../models/audit_log_model.dart';
 import '../models/nominee_model.dart';
+import '../models/user_model.dart';
+import '../models/health_data_model.dart';
 
 class PatientService {
   final ApiService _api = ApiService();
@@ -81,5 +83,71 @@ class PatientService {
       return Nominee.fromJson(data['data']);
     }
     throw Exception(data['message'] ?? 'Failed to update nominee');
+  }
+
+  // ==================== Profile ====================
+
+  Future<User> getProfile() async {
+    try {
+      final response = await _api.get('/patient/me');
+      final data = response.data;
+
+      if (data['status'] == 'success') {
+        return User.fromProfileJson(data['data']);
+      } else {
+        throw Exception(data['message'] ?? 'Failed to load profile');
+      }
+    } catch (e) {
+      throw Exception('Error fetching profile: $e');
+    }
+  }
+
+  // ==================== Health Data ====================
+
+  Future<HealthDataResponse> getHealthData() async {
+    try {
+      final response = await _api.get('/patient/health');
+      final data = response.data;
+
+      if (data['status'] == 'success') {
+        return HealthDataResponse.fromJson(data['data']);
+      } else {
+        throw Exception(data['message'] ?? 'Failed to load health data');
+      }
+    } catch (e) {
+      throw Exception('Error fetching health data: $e');
+    }
+  }
+
+  Future<HealthData> submitHealthData({
+    String? bloodPressure,
+    int? bloodGlucose,
+    int? heartRate,
+    double? temperature,
+    double? weight,
+    String? notes,
+    DateTime? recordedAt,
+  }) async {
+    try {
+      final body = <String, dynamic>{};
+      if (bloodPressure != null) body['bloodPressure'] = bloodPressure;
+      if (bloodGlucose != null) body['bloodGlucose'] = bloodGlucose;
+      if (heartRate != null) body['heartRate'] = heartRate;
+      if (temperature != null) body['temperature'] = temperature;
+      if (weight != null) body['weight'] = weight;
+      if (notes != null) body['notes'] = notes;
+      if (recordedAt != null) body['recordedAt'] = recordedAt.toIso8601String();
+
+      final response = await _api.post('/patient/health', data: body);
+      final data = response.data;
+
+      if (data['status'] == 'success') {
+        return HealthData.fromJson(data['data']);
+      } else {
+        throw Exception(data['message'] ?? 'Failed to submit health data');
+      }
+    } catch (e) {
+      throw Exception('Error submitting health data: $e');
+    }
   }
 }
