@@ -24,6 +24,7 @@ class DoctorProvider extends ChangeNotifier {
 
     try {
       _accessRequests = await _doctorApi.getAccessRequests();
+      debugPrint('Fetched ${_accessRequests.length} access requests');
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
     } finally {
@@ -60,6 +61,7 @@ class DoctorProvider extends ChangeNotifier {
 
     try {
       _patientData = await _doctorApi.getPatientData(token);
+      debugPrint('Fetched patient data for token: $token');
       return true;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');

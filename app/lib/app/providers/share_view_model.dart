@@ -15,6 +15,7 @@ class ShareViewModel extends ChangeNotifier {
 
   // Access scope options
   Map<String, bool> accessScope = {
+    'personal_': false,
     'reports': false,
     'prescriptions': false,
     'health_data': false,

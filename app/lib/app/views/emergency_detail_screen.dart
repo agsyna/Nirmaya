@@ -119,6 +119,16 @@ class _EmergencyDetailScreenState extends State<EmergencyDetailScreen> {
 
                 if (emergency.criticalInfoShared != null)
                   const SizedBox(height: 20),
+                  
+                  if (emergency.criticalInfoShared != null &&
+                    (emergency.criticalInfoShared!.allergies.isNotEmpty ||
+                     emergency.criticalInfoShared!.chronicConditions.isNotEmpty))
+                  _buildCriticalInfoCard(emergency.criticalInfoShared!),
+
+                if (emergency.criticalInfoShared != null &&
+                    (emergency.criticalInfoShared!.allergies.isNotEmpty ||
+                     emergency.criticalInfoShared!.chronicConditions.isNotEmpty))
+                  const SizedBox(height: 20),
 
                 // Action Buttons
                 // if (emergency.isActive)
@@ -503,7 +513,7 @@ class _EmergencyDetailScreenState extends State<EmergencyDetailScreen> {
                     border: Border.all(
                       color: const Color(0xFFEF5350).withValues(alpha: 0.3),
                     ),
-                  ),
+                  ),     
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
