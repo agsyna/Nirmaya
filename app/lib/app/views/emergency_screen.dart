@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../../core/constants/app_colors.dart';
 import '../models/emergency_model.dart';
 import '../providers/emergency_view_model.dart';
@@ -29,11 +30,16 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     'police',
     'fire',
     'medical-support',
-    'other'
+    'other',
   ];
 
   bool _isScanning = false;
   final MobileScannerController _scannerController = MobileScannerController();
+
+  // Speech-to-text
+  final stt.SpeechToText _speech = stt.SpeechToText();
+  bool _isListening = false;
+  bool _speechAvailable = false;
 
   @override
   void initState() {
@@ -44,6 +50,63 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     _longitudeController = TextEditingController();
     _locationController = TextEditingController(text: 'Fetching location...');
     _getCurrentLocation();
+    _initSpeech();
+  }
+
+  Future<void> _initSpeech() async {
+    _speechAvailable = await _speech.initialize(
+      onError: (e) {
+        if (mounted) setState(() => _isListening = false);
+      },
+      onStatus: (status) {
+        if (status == stt.SpeechToText.doneStatus ||
+            status == stt.SpeechToText.notListeningStatus) {
+          if (mounted) setState(() => _isListening = false);
+        }
+      },
+    );
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _toggleListening() async {
+    if (!_speechAvailable) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Speech recognition not available on this device',
+            style: GoogleFonts.poppins(),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (_isListening) {
+      await _speech.stop();
+      setState(() => _isListening = false);
+    } else {
+      setState(() => _isListening = true);
+      await _speech.listen(
+        onResult: (result) {
+          if (mounted) {
+            setState(() {
+              _descriptionController.text = result.recognizedWords;
+              _descriptionController.selection = TextSelection.fromPosition(
+                TextPosition(offset: _descriptionController.text.length),
+              );
+            });
+          }
+        },
+        listenOptions: stt.SpeechListenOptions(
+          listenMode: stt.ListenMode.dictation,
+          cancelOnError: true,
+          partialResults: true,
+        ),
+        listenFor: const Duration(seconds: 30),
+        pauseFor: const Duration(seconds: 4),
+        localeId: 'en_IN',
+      );
+    }
   }
 
   Future<void> _getCurrentLocation() async {
@@ -52,7 +115,8 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      if (mounted) setState(() => _locationController.text = 'Location services disabled');
+      if (mounted)
+        setState(() => _locationController.text = 'Location services disabled');
       return;
     }
 
@@ -60,20 +124,27 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        if (mounted) setState(() => _locationController.text = 'Location permission denied');
+        if (mounted)
+          setState(
+            () => _locationController.text = 'Location permission denied',
+          );
         return;
       }
     }
-    
+
     if (permission == LocationPermission.deniedForever) {
-      if (mounted) setState(() => _locationController.text = 'Location permission denied forever');
+      if (mounted)
+        setState(
+          () => _locationController.text = 'Location permission denied forever',
+        );
       return;
-    } 
+    }
 
     try {
       Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-      
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
       if (mounted) {
         setState(() {
           _latitudeController.text = position.latitude.toString();
@@ -82,7 +153,8 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         });
       }
     } catch (e) {
-      if (mounted) setState(() => _locationController.text = 'Failed to get location');
+      if (mounted)
+        setState(() => _locationController.text = 'Failed to get location');
     }
   }
 
@@ -94,6 +166,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     _longitudeController.dispose();
     _locationController.dispose();
     _scannerController.dispose();
+    _speech.cancel();
     super.dispose();
   }
 
@@ -131,14 +204,21 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                               controller: _scannerController,
                               onDetect: (capture) {
                                 final List<Barcode> barcodes = capture.barcodes;
-                                if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
+                                if (barcodes.isNotEmpty &&
+                                    barcodes.first.rawValue != null) {
                                   setState(() {
-                                    _affectedPatientIdController.text = barcodes.first.rawValue!;
+                                    _affectedPatientIdController.text =
+                                        barcodes.first.rawValue!;
                                     _isScanning = false;
                                   });
                                   _scannerController.stop();
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Patient ID Scanned Successfully', style: GoogleFonts.poppins())),
+                                    SnackBar(
+                                      content: Text(
+                                        'Patient ID Scanned Successfully',
+                                        style: GoogleFonts.poppins(),
+                                      ),
+                                    ),
                                   );
                                 }
                               },
@@ -147,7 +227,10 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                               top: 8,
                               right: 8,
                               child: IconButton(
-                                icon: const Icon(Icons.close, color: Colors.white),
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                ),
                                 onPressed: () {
                                   setState(() {
                                     _isScanning = false;
@@ -209,20 +292,14 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                   controller: _affectedPatientIdController,
                   decoration: InputDecoration(
                     hintText: 'Enter or scan patient ID',
-                    hintStyle: GoogleFonts.poppins(
-                      color: AppColors.textLight,
-                    ),
+                    hintStyle: GoogleFonts.poppins(color: AppColors.textLight),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: AppColors.textLight,
-                      ),
+                      borderSide: const BorderSide(color: AppColors.textLight),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: AppColors.textLight,
-                      ),
+                      borderSide: const BorderSide(color: AppColors.textLight),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -255,7 +332,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                       label: Text(
                         type.replaceAll('-', ' ').toUpperCase(),
                         style: GoogleFonts.poppins(
-                          color: isSelected ? Colors.white : AppColors.textPrimary,
+                          color: isSelected
+                              ? Colors.white
+                              : AppColors.textPrimary,
                           fontSize: 12,
                         ),
                       ),
@@ -272,7 +351,10 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('At least one service type is required', style: GoogleFonts.poppins()),
+                                  content: Text(
+                                    'At least one service type is required',
+                                    style: GoogleFonts.poppins(),
+                                  ),
                                   duration: const Duration(seconds: 1),
                                 ),
                               );
@@ -300,20 +382,14 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                   maxLines: 4,
                   decoration: InputDecoration(
                     hintText: 'Describe the emergency situation',
-                    hintStyle: GoogleFonts.poppins(
-                      color: AppColors.textLight,
-                    ),
+                    hintStyle: GoogleFonts.poppins(color: AppColors.textLight),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: AppColors.textLight,
-                      ),
+                      borderSide: const BorderSide(color: AppColors.textLight),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: AppColors.textLight,
-                      ),
+                      borderSide: const BorderSide(color: AppColors.textLight),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -322,7 +398,23 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                         width: 2,
                       ),
                     ),
-                    suffixIcon: const Icon(Icons.mic, color: AppColors.primary),
+                    suffixIcon: GestureDetector(
+                      onTap: _toggleListening,
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 200),
+                        child: _isListening
+                            ? const Icon(
+                                Icons.mic,
+                                key: ValueKey('mic_on'),
+                                color: Colors.red,
+                              )
+                            : const Icon(
+                                Icons.mic_none,
+                                key: ValueKey('mic_off'),
+                                color: AppColors.primary,
+                              ),
+                      ),
+                    ),
                   ),
                   style: GoogleFonts.poppins(),
                 ),
@@ -343,20 +435,14 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                   readOnly: true,
                   decoration: InputDecoration(
                     hintText: 'Pre-filled Location',
-                    hintStyle: GoogleFonts.poppins(
-                      color: AppColors.textLight,
-                    ),
+                    hintStyle: GoogleFonts.poppins(color: AppColors.textLight),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: AppColors.textLight,
-                      ),
+                      borderSide: const BorderSide(color: AppColors.textLight),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: AppColors.textLight,
-                      ),
+                      borderSide: const BorderSide(color: AppColors.textLight),
                     ),
                   ),
                   style: GoogleFonts.poppins(),
@@ -447,8 +533,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                             : () => _triggerEmergency(context, viewModel),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
-                          disabledBackgroundColor:
-                              AppColors.primary.withValues(alpha: 0.5),
+                          disabledBackgroundColor: AppColors.primary.withValues(
+                            alpha: 0.5,
+                          ),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -520,15 +607,15 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       serviceTypes: _selectedServiceTypes,
       description: _descriptionController.text,
     );
-    
+
     if (success && mounted && viewModel.currentEmergency != null) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => EmergencyDetailScreen(sosId: viewModel.currentEmergency!.sosId),
+          builder: (context) =>
+              EmergencyDetailScreen(sosId: viewModel.currentEmergency!.sosId),
         ),
       );
     }
   }
 }
-
