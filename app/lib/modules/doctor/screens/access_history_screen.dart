@@ -70,19 +70,19 @@ class _AccessHistoryScreenState extends State<AccessHistoryScreen> {
     final provider = Provider.of<DoctorProvider>(context, listen: false);
     final token = request['token'];
 
-    if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Missing access token', style: GoogleFonts.poppins())),
-      );
-      return;
-    }
+    // if (token == null) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(content: Text('Missing access token', style: GoogleFonts.poppins())),
+    //   );
+    //   return;
+    // }
 
-    // Show loading
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-    );
+    // // Show loading
+    // showDialog(
+    //   context: context,
+    //   barrierDismissible: false,
+    //   builder: (_) => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+    // );
 
     final success = await provider.fetchPatientData(token);
 

@@ -21,7 +21,6 @@ class DoctorPatientDataScreen extends StatefulWidget {
 class _DoctorPatientDataScreenState extends State<DoctorPatientDataScreen> {
   @override
   void dispose() {
-    // Clear the sensitive data from memory when closing the screen!
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<DoctorProvider>(context, listen: false).clearPatientData();
     });
@@ -30,14 +29,10 @@ class _DoctorPatientDataScreenState extends State<DoctorPatientDataScreen> {
 
   void _openFile(String? url) async {
     if (url == null || url.isEmpty) return;
-    
-    // As per requirement: Show in app (image/pdf)
-    // For simplicity of external URLs and varied formats, we use url_launcher but we can load an in-app viewer.
-    // The user said "show in app it can be image png, jpg,jpeg or pdf".
-    // Let's implement a simple modal to show image, and use url_launcher for pdf as fallback.
+
     final uri = Uri.parse(url);
     final ext = uri.path.toLowerCase();
-    
+
     if (ext.endsWith('.jpg') || ext.endsWith('.jpeg') || ext.endsWith('.png')) {
       showDialog(
         context: context,
@@ -47,9 +42,7 @@ class _DoctorPatientDataScreenState extends State<DoctorPatientDataScreen> {
           child: Stack(
             alignment: Alignment.topRight,
             children: [
-              InteractiveViewer(
-                child: Image.network(url),
-              ),
+              InteractiveViewer(child: Image.network(url)),
               IconButton(
                 icon: const Icon(Icons.close, color: Colors.white, size: 30),
                 onPressed: () => Navigator.pop(context),
@@ -59,7 +52,6 @@ class _DoctorPatientDataScreenState extends State<DoctorPatientDataScreen> {
         ),
       );
     } else {
-      // Fallback for PDF or others (launching native viewer is better for PDFs unless flutter_pdfview is added)
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
@@ -84,23 +76,31 @@ class _DoctorPatientDataScreenState extends State<DoctorPatientDataScreen> {
       );
     }
 
-    final patientContext = data['patientContext'] ?? {};
-    final records = List<dynamic>.from(data['records'] ?? []);
+    // ✅ FIX: Use patientProfile instead of patientContext
+    final profile = data['patientProfile'] ?? {};
 
-    // Grouping records by type
     final Map<String, List<dynamic>> groupedRecords = {};
-    for (var record in records) {
-      final type = record['type']?.toString() ?? 'other';
-      if (!groupedRecords.containsKey(type)) {
-        groupedRecords[type] = [];
-      }
-      groupedRecords[type]!.add(record);
-    }
+
+    final reports = List<dynamic>.from(data['reports'] ?? []);
+    final prescriptions = List<dynamic>.from(data['prescriptions'] ?? []);
+    final healthData = List<dynamic>.from(data['healthData'] ?? []);
+    final chronicConditions = List<dynamic>.from(data['chronicConditions'] ?? []);
+    final allergies = List<dynamic>.from(data['allergies'] ?? []);
+
+    // ✅ ONLY list-based data
+    if (reports.isNotEmpty) groupedRecords['report'] = reports;
+    if (prescriptions.isNotEmpty) groupedRecords['prescription'] = prescriptions;
+    if (healthData.isNotEmpty) groupedRecords['health Data'] = healthData;
+    if (chronicConditions.isNotEmpty) groupedRecords['chronic Condition'] = chronicConditions;
+    if (allergies.isNotEmpty) groupedRecords['allergy'] = allergies;
+
+    final bool isEmpty = groupedRecords.isEmpty && profile.isEmpty;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('${widget.patientName}\'s Data', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        title: Text('${widget.patientName}\'s Data',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
@@ -109,7 +109,7 @@ class _DoctorPatientDataScreenState extends State<DoctorPatientDataScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Patient Header Card
+            // Header
             Container(
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(20),
@@ -122,25 +122,31 @@ class _DoctorPatientDataScreenState extends State<DoctorPatientDataScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    patientContext['name'] ?? widget.patientName,
-                    style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w600, color: Colors.white),
+                    widget.patientName,
+                    style: GoogleFonts.poppins(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      if (patientContext['age'] != null)
-                        _buildBadge('Age: ${patientContext['age']}'),
-                      if (patientContext['age'] != null && patientContext['gender'] != null)
+                      if (profile['age'] != null)
+                        _buildBadge('Age: ${profile['age']}'),
+                      if (profile['age'] != null && profile['gender'] != null)
                         const SizedBox(width: 8),
-                      if (patientContext['gender'] != null)
-                        _buildBadge(patientContext['gender'].toString().toUpperCase()),
+                      if (profile['gender'] != null)
+                        _buildBadge(profile['gender'].toString().toUpperCase()),
                     ],
                   ),
                 ],
               ),
             ),
 
-            if (records.isEmpty)
+            // ✅ Profile Card (separate)
+            if (profile.isNotEmpty) _buildProfileCard(profile),
+
+            if (isEmpty)
               Padding(
                 padding: const EdgeInsets.all(32),
                 child: Center(
@@ -151,17 +157,22 @@ class _DoctorPatientDataScreenState extends State<DoctorPatientDataScreen> {
                 ),
               )
             else
-              // Grouped lists
               ...groupedRecords.entries.map((entry) {
-                final typeName = entry.key[0].toUpperCase() + entry.key.substring(1); // Capitalize
+                final typeName =
+                    entry.key[0].toUpperCase() + entry.key.substring(1);
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                       child: Text(
                         '${typeName}s',
-                        style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.primary),
+                        style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary),
                       ),
                     ),
                     ListView.builder(
@@ -193,14 +204,54 @@ class _DoctorPatientDataScreenState extends State<DoctorPatientDataScreen> {
       ),
       child: Text(
         text,
-        style: GoogleFonts.poppins(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+        style: GoogleFonts.poppins(
+            color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+      ),
+    );
+  }
+
+  Widget _buildProfileCard(Map<String, dynamic> profile) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Patient Profile',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          Text('Age: ${profile['age'] ?? '-'}'),
+          Text('Gender: ${profile['gender'] ?? '-'}'),
+          Text('Blood Group: ${profile['bloodGroup'] ?? '-'}'),
+          Text('Height: ${profile['height'] ?? '-'}'),
+          Text('Weight: ${profile['weight'] ?? '-'}'),
+        ],
       ),
     );
   }
 
   Widget _buildRecordCard(Map<String, dynamic> record) {
-    final title = record['title'] ?? 'Untitled Document';
-    final createdAt = record['createdAt'];
+    String title;
+
+    // ✅ FIX: type-aware title
+    if (record.containsKey('condition')) {
+      title = record['condition'];
+    } else if (record.containsKey('allergen')) {
+      title = record['allergen'];
+    } else if (record.containsKey('title')) {
+      title = record['title'];
+    } else if (record.containsKey('name')) {
+      title = record['name'];
+    } else {
+      title = 'Medical Record';
+    }
+
+    final createdAt =
+        record['createdAt'] ?? record['documentDate'] ?? record['recordedAt'];
     final url = record['fileUrl'];
 
     return Card(
@@ -220,13 +271,15 @@ class _DoctorPatientDataScreenState extends State<DoctorPatientDataScreen> {
         ),
         title: Text(
           title,
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 15),
+          style:
+              GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 15),
         ),
-        subtitle: createdAt != null 
+        subtitle: createdAt != null
             ? Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
-                  DateFormat('dd MMM yyyy').format(DateTime.parse(createdAt).toLocal()),
+                  DateFormat('dd MMM yyyy')
+                      .format(DateTime.parse(createdAt).toLocal()),
                   style: GoogleFonts.poppins(fontSize: 12),
                 ),
               )
