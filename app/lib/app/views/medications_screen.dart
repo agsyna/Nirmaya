@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../models/medication_model.dart';
 import '../providers/medication_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/medication_card.dart';
@@ -29,21 +30,6 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
       appBar: CustomAppBar(
         title: 'Medications',
         onBackPressed: () => Navigator.pop(context),
-        actions: [
-          GestureDetector(
-            onTap: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AddMedicationScreen()),
-              );
-              if (result == true && mounted) {
-                context.read<MedicationProvider>().loadMedications();
-              }
-            },
-            child: const Icon(Icons.add, color: Colors.white, size: 26),
-          ),
-          const SizedBox(width: 8),
-        ],
       ),
       backgroundColor: AppColors.background,
       body: Consumer<MedicationProvider>(
@@ -66,6 +52,8 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
                 // Scheduled section
                 if (provider.activeMedications.isNotEmpty) ...[
                   _buildScheduledSection(provider),
+                ] else ...[
+                  _buildEmptyScheduledSection(),
                 ],
 
                 // Your medications section
@@ -79,13 +67,13 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          final provider = context.read<MedicationProvider>();
           final result = await Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const AddMedicationScreen()),
           );
-          if (result == true && mounted) {
-            context.read<MedicationProvider>().loadMedications();
-          }
+          if (!mounted || result != true) return;
+          provider.loadMedications();
         },
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.add, color: Colors.white),
@@ -163,8 +151,8 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
                           color: isSelected
                               ? Colors.white
                               : isToday
-                                  ? AppColors.primary
-                                  : AppColors.textPrimary,
+                              ? AppColors.primary
+                              : AppColors.textPrimary,
                         ),
                       ),
                     ),
@@ -180,6 +168,19 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
 
   Widget _buildScheduledSection(MedicationProvider provider) {
     final now = DateTime.now();
+    final doses = <_ScheduledDose>[];
+
+    for (final med in provider.activeMedications) {
+      for (final time in med.reminderTimes) {
+        doses.add(_ScheduledDose(medication: med, reminderTime: time));
+      }
+    }
+
+    doses.sort((a, b) {
+      final left = a.reminderTime.hour * 60 + a.reminderTime.minute;
+      final right = b.reminderTime.hour * 60 + b.reminderTime.minute;
+      return left.compareTo(right);
+    });
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -196,48 +197,69 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
           ),
           const SizedBox(height: 12),
 
-          ...provider.activeMedications.expand((med) {
-            return med.reminderTimes.map((time) {
-              final log = provider.getLogForDose(med.id!, time);
-              String status;
-              if (log != null) {
-                status = log.status;
-              } else {
-                final scheduledDT = DateTime(
-                  provider.selectedDate.year,
-                  provider.selectedDate.month,
-                  provider.selectedDate.day,
-                  time.hour,
-                  time.minute,
-                );
-                if (scheduledDT.isBefore(now)) {
-                  status = 'passed';
-                } else {
-                  status = 'upcoming';
-                }
-              }
-
-              return MedicationCard(
-                medication: med,
-                reminderTime: time,
-                status: status,
-                onTake: () {
-                  provider.takeMedication(med.id!, time);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        '${med.name} marked as taken ✓',
-                        style: GoogleFonts.poppins(),
-                      ),
-                      backgroundColor: AppColors.success,
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
-                },
+          ...doses.map((dose) {
+            final med = dose.medication;
+            final time = dose.reminderTime;
+            final log = provider.getLogForDose(med.id!, dose.reminderTime);
+            String status;
+            if (log != null) {
+              status = log.status;
+            } else {
+              final scheduledDT = DateTime(
+                provider.selectedDate.year,
+                provider.selectedDate.month,
+                provider.selectedDate.day,
+                time.hour,
+                time.minute,
               );
-            });
+              if (scheduledDT.isBefore(now)) {
+                status = 'passed';
+              } else {
+                status = 'upcoming';
+              }
+            }
+
+            return MedicationCard(
+              medication: med,
+              reminderTime: time,
+              status: status,
+              onTake: () {
+                provider.takeMedication(med.id!, time);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      '${med.name} marked as taken ✓',
+                      style: GoogleFonts.poppins(),
+                    ),
+                    backgroundColor: AppColors.success,
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
+            );
           }),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyScheduledSection() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(
+          'No doses scheduled for this day',
+          style: GoogleFonts.poppins(
+            color: AppColors.textSecondary,
+            fontSize: 14,
+          ),
+        ),
       ),
     );
   }
@@ -283,7 +305,11 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 30),
                   child: Column(
                     children: [
-                      Icon(Icons.medication, size: 48, color: AppColors.textLight),
+                      Icon(
+                        Icons.medication,
+                        size: 48,
+                        color: AppColors.textLight,
+                      ),
                       const SizedBox(height: 12),
                       Text(
                         'No medications added yet',
@@ -334,4 +360,11 @@ class _MedicationsScreenState extends State<MedicationsScreen> {
       ),
     );
   }
+}
+
+class _ScheduledDose {
+  final Medication medication;
+  final TimeOfDay reminderTime;
+
+  const _ScheduledDose({required this.medication, required this.reminderTime});
 }

@@ -20,7 +20,7 @@ class MedicationService {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE medications (
@@ -29,6 +29,7 @@ class MedicationService {
             type TEXT NOT NULL,
             dosage TEXT NOT NULL,
             frequency TEXT NOT NULL,
+            days_of_week TEXT NOT NULL DEFAULT '1,2,3,4,5,6,7',
             reminder_times TEXT NOT NULL,
             start_date TEXT NOT NULL,
             end_date TEXT,
@@ -47,6 +48,13 @@ class MedicationService {
             FOREIGN KEY (medication_id) REFERENCES medications (id) ON DELETE CASCADE
           )
         ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute(
+            "ALTER TABLE medications ADD COLUMN days_of_week TEXT NOT NULL DEFAULT '1,2,3,4,5,6,7'",
+          );
+        }
       },
     );
   }
@@ -100,11 +108,7 @@ class MedicationService {
 
   Future<int> deleteMedication(int id) async {
     final db = await database;
-    return await db.delete(
-      'medications',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('medications', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<void> toggleMedicationActive(int id, bool isActive) async {
@@ -158,7 +162,11 @@ class MedicationService {
     return results.map((map) => MedicationLog.fromMap(map)).toList();
   }
 
-  Future<void> updateLogStatus(int logId, String status, {DateTime? takenTime}) async {
+  Future<void> updateLogStatus(
+    int logId,
+    String status, {
+    DateTime? takenTime,
+  }) async {
     final db = await database;
     final data = <String, dynamic>{'status': status};
     if (takenTime != null) {

@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../providers/report_provider.dart';
-import '../widgets/custom_app_bar.dart';
 import '../widgets/report_card.dart';
 import 'add_report_screen.dart';
 import 'report_detail_screen.dart';
@@ -15,22 +14,125 @@ class RecordsScreen extends StatefulWidget {
   State<RecordsScreen> createState() => _RecordsScreenState();
 }
 
-class _RecordsScreenState extends State<RecordsScreen> {
-  final ScrollController _scrollController = ScrollController();
-  String _selectedTab = 'Report';
-
-  final List<String> _tabs = [
-    'Report',
-    'Prescription',
-  ];
+class _RecordsScreenState extends State<RecordsScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ReportProvider>().loadReports(refresh: true, endpoint: 'reports');
+      context.read<ReportProvider>().loadReports(
+        refresh: true,
+        endpoint: 'reports',
+      );
     });
 
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        final endpoint = _tabController.index == 0
+            ? 'reports'
+            : 'prescriptions';
+        context.read<ReportProvider>().loadReports(
+          refresh: true,
+          endpoint: endpoint,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Medical Records',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+        ),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white60,
+          indicatorColor: Colors.white,
+          labelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          unselectedLabelStyle: GoogleFonts.poppins(
+            fontWeight: FontWeight.normal,
+          ),
+          tabs: const [
+            Tab(text: 'Reports'),
+            Tab(text: 'Prescriptions'),
+          ],
+        ),
+      ),
+      backgroundColor: AppColors.background,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final provider = context.read<ReportProvider>();
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddReportScreen()),
+          );
+          if (!mounted || result != true) return;
+          final endpoint = _tabController.index == 0
+              ? 'reports'
+              : 'prescriptions';
+          provider.loadReports(refresh: true, endpoint: endpoint);
+        },
+        backgroundColor: AppColors.primary,
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: Text(
+          'Add Record',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: const [
+          _RecordsTab(endpoint: 'reports', type: 'Report'),
+          _RecordsTab(endpoint: 'prescriptions', type: 'Prescription'),
+        ],
+      ),
+    );
+  }
+}
+
+class _RecordsTab extends StatefulWidget {
+  final String endpoint;
+  final String type;
+
+  const _RecordsTab({required this.endpoint, required this.type});
+
+  @override
+  State<_RecordsTab> createState() => _RecordsTabState();
+}
+
+class _RecordsTabState extends State<_RecordsTab>
+    with AutomaticKeepAliveClientMixin {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
@@ -45,237 +147,119 @@ class _RecordsScreenState extends State<RecordsScreen> {
     super.dispose();
   }
 
-  String _getEndpoint(String tab) {
-    return tab == 'Report' ? 'reports' : 'prescriptions';
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Medical Records',
-        onBackPressed: () => Navigator.pop(context),
-      ),
-      backgroundColor: AppColors.background,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AddReportScreen()),
+    super.build(context);
+    return Consumer<ReportProvider>(
+      builder: (context, provider, _) {
+        if (provider.isLoading && provider.reports.isEmpty) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
           );
-          if (result == true && mounted) {
-            context.read<ReportProvider>().loadReports(
-              refresh: true,
-              endpoint: _getEndpoint(_selectedTab),
-            );
-          }
-        },
-        backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: Text(
-          'Add Record',
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          // Tab buttons
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: _tabs.map((tab) {
-                  final isSelected = _selectedTab == tab;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: GestureDetector(
-                      onTap: () => setState(() {
-                        _selectedTab = tab;
-                        // Load data for the selected tab
-                        context.read<ReportProvider>().loadReports(
-                          refresh: true,
-                          endpoint: _getEndpoint(tab),
-                        );
-                      }),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppColors.primary
-                              : AppColors.surface,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: isSelected
-                                ? AppColors.primary
-                                : AppColors.divider,
-                          ),
-                          boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: AppColors.primary.withValues(alpha: 0.3),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ]
-                              : null,
-                        ),
-                        child: Text(
-                          tab,
-                          style: GoogleFonts.poppins(
-                            fontSize: 13,
-                            fontWeight:
-                                isSelected ? FontWeight.w600 : FontWeight.w400,
-                            color: isSelected
-                                ? Colors.white
-                                : AppColors.textSecondary,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
+        }
 
-          // Records list
-          Expanded(
-            child: Consumer<ReportProvider>(
-              builder: (context, provider, _) {
-                if (provider.isLoading && provider.reports.isEmpty) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.primary,
-                    ),
-                  );
-                }
-
-                if (provider.errorMessage != null && provider.reports.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 64,
-                          color: AppColors.textLight,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          provider.errorMessage!,
-                          style: GoogleFonts.poppins(
-                            color: AppColors.textSecondary,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        TextButton(
-                          onPressed: () => provider.loadReports(
-                            refresh: true,
-                            endpoint: _getEndpoint(_selectedTab),
-                          ),
-                          child: const Text('Retry'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                if (provider.reports.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            color: AppColors.primarySurface,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.folder_open,
-                            size: 50,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          'No $_selectedTab records found',
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Tap + to add your first record',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                return RefreshIndicator(
-                  color: AppColors.primary,
-                  onRefresh: () => provider.loadReports(
+        if (provider.errorMessage != null && provider.reports.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 64, color: AppColors.textLight),
+                const SizedBox(height: 16),
+                Text(
+                  provider.errorMessage!,
+                  style: GoogleFonts.poppins(color: AppColors.textSecondary),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () => provider.loadReports(
                     refresh: true,
-                    endpoint: _getEndpoint(_selectedTab),
+                    endpoint: widget.endpoint,
                   ),
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-                    itemCount: provider.reports.length +
-                        (provider.isLoading ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == provider.reports.length) {
-                        return const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(16),
-                            child: CircularProgressIndicator(
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        );
-                      }
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          );
+        }
 
-                      final report = provider.reports[index];
-                      return ReportCard(
-                        report: report,
-                        onTap: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ReportDetailScreen(
-                                reportId: report.recordId,
-                              ),
-                            ),
-                          );
-                        },
-                        onDelete: () => _confirmDelete(context, provider, report.recordId),
-                      );
-                    },
+        if (provider.reports.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: AppColors.primarySurface,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.folder_open,
+                    size: 50,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'No ${widget.type} records found',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Tap + to add your first record',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return RefreshIndicator(
+          color: AppColors.primary,
+          onRefresh: () =>
+              provider.loadReports(refresh: true, endpoint: widget.endpoint),
+          child: ListView.builder(
+            controller: _scrollController,
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+            itemCount: provider.reports.length + (provider.isLoading ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == provider.reports.length) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(color: AppColors.primary),
                   ),
                 );
-              },
-            ),
+              }
+
+              final report = provider.reports[index];
+              return ReportCard(
+                report: report,
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          ReportDetailScreen(reportId: report.recordId),
+                    ),
+                  );
+                },
+                onDelete: () =>
+                    _confirmDelete(context, provider, report.recordId),
+              );
+            },
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

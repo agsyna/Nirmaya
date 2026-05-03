@@ -34,7 +34,7 @@ class MedicationProvider extends ChangeNotifier {
 
     try {
       _medications = await _medicationService.getAllMedications();
-      _activeMedications = await _medicationService.getActiveMedications();
+      _refreshScheduledMedications();
     } catch (e) {
       _errorMessage = e.toString();
     }
@@ -54,6 +54,7 @@ class MedicationProvider extends ChangeNotifier {
   // ==================== Select Date ====================
   void selectDate(DateTime date) {
     _selectedDate = date;
+    _refreshScheduledMedications();
     loadTodayLogs();
     notifyListeners();
   }
@@ -63,17 +64,7 @@ class MedicationProvider extends ChangeNotifier {
     try {
       final id = await _medicationService.addMedication(medication);
 
-      // Schedule notifications for each reminder time
-      for (int i = 0; i < medication.reminderTimes.length; i++) {
-        final time = medication.reminderTimes[i];
-        await _notificationService.scheduleMedicationReminder(
-          id: id * 100 + i, // Unique notification ID
-          medicineName: medication.name,
-          dosage: medication.dosage,
-          hour: time.hour,
-          minute: time.minute,
-        );
-      }
+      await _scheduleNotificationsForMedication(medication.copyWith(id: id));
 
       await loadMedications();
       return true;
@@ -91,23 +82,12 @@ class MedicationProvider extends ChangeNotifier {
 
       // Cancel old notifications
       if (medication.id != null) {
-        for (int i = 0; i < 10; i++) {
-          await _notificationService.cancelNotification(medication.id! * 100 + i);
-        }
+        await _cancelNotificationsForMedication(medication.id!);
       }
 
       // Schedule new notifications
       if (medication.isActive) {
-        for (int i = 0; i < medication.reminderTimes.length; i++) {
-          final time = medication.reminderTimes[i];
-          await _notificationService.scheduleMedicationReminder(
-            id: medication.id! * 100 + i,
-            medicineName: medication.name,
-            dosage: medication.dosage,
-            hour: time.hour,
-            minute: time.minute,
-          );
-        }
+        await _scheduleNotificationsForMedication(medication);
       }
 
       await loadMedications();
@@ -123,9 +103,7 @@ class MedicationProvider extends ChangeNotifier {
   Future<bool> deleteMedication(int id) async {
     try {
       // Cancel notifications
-      for (int i = 0; i < 10; i++) {
-        await _notificationService.cancelNotification(id * 100 + i);
-      }
+      await _cancelNotificationsForMedication(id);
 
       await _medicationService.deleteMedication(id);
       await loadMedications();
@@ -143,23 +121,12 @@ class MedicationProvider extends ChangeNotifier {
 
     if (!isActive) {
       // Cancel notifications
-      for (int i = 0; i < 10; i++) {
-        await _notificationService.cancelNotification(id * 100 + i);
-      }
+      await _cancelNotificationsForMedication(id);
     } else {
       // Re-schedule notifications
       final med = await _medicationService.getMedication(id);
       if (med != null) {
-        for (int i = 0; i < med.reminderTimes.length; i++) {
-          final time = med.reminderTimes[i];
-          await _notificationService.scheduleMedicationReminder(
-            id: id * 100 + i,
-            medicineName: med.name,
-            dosage: med.dosage,
-            hour: time.hour,
-            minute: time.minute,
-          );
-        }
+        await _scheduleNotificationsForMedication(med);
       }
     }
 
@@ -216,10 +183,12 @@ class MedicationProvider extends ChangeNotifier {
       time.minute,
     );
 
-    return _todayLogs.any((log) =>
-        log.medicationId == medicationId &&
-        log.scheduledTime.hour == scheduledDateTime.hour &&
-        log.scheduledTime.minute == scheduledDateTime.minute);
+    return _todayLogs.any(
+      (log) =>
+          log.medicationId == medicationId &&
+          log.scheduledTime.hour == scheduledDateTime.hour &&
+          log.scheduledTime.minute == scheduledDateTime.minute,
+    );
   }
 
   MedicationLog? getLogForDose(int medicationId, TimeOfDay time) {
@@ -232,10 +201,12 @@ class MedicationProvider extends ChangeNotifier {
     );
 
     try {
-      return _todayLogs.firstWhere((log) =>
-          log.medicationId == medicationId &&
-          log.scheduledTime.hour == scheduledDateTime.hour &&
-          log.scheduledTime.minute == scheduledDateTime.minute);
+      return _todayLogs.firstWhere(
+        (log) =>
+            log.medicationId == medicationId &&
+            log.scheduledTime.hour == scheduledDateTime.hour &&
+            log.scheduledTime.minute == scheduledDateTime.minute,
+      );
     } catch (_) {
       return null;
     }
@@ -244,5 +215,66 @@ class MedicationProvider extends ChangeNotifier {
   void clearError() {
     _errorMessage = null;
     notifyListeners();
+  }
+
+  void _refreshScheduledMedications() {
+    final selectedDay = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+    );
+
+    _activeMedications = _medications.where((med) {
+      if (!med.isActive) return false;
+
+      final start = DateTime(
+        med.startDate.year,
+        med.startDate.month,
+        med.startDate.day,
+      );
+      final end = med.endDate == null
+          ? null
+          : DateTime(med.endDate!.year, med.endDate!.month, med.endDate!.day);
+
+      if (selectedDay.isBefore(start)) return false;
+      if (end != null && selectedDay.isAfter(end)) return false;
+
+      return med.isScheduledOn(selectedDay);
+    }).toList();
+  }
+
+  int _notificationId(int medicationId, int weekday, int slotIndex) {
+    return medicationId * 1000 + (weekday * 10) + slotIndex;
+  }
+
+  Future<void> _cancelNotificationsForMedication(int medicationId) async {
+    for (int day = 1; day <= 7; day++) {
+      for (int slot = 0; slot < 10; slot++) {
+        await _notificationService.cancelNotification(
+          _notificationId(medicationId, day, slot),
+        );
+      }
+    }
+  }
+
+  Future<void> _scheduleNotificationsForMedication(
+    Medication medication,
+  ) async {
+    if (medication.id == null) return;
+
+    final days = medication.daysOfWeek.toSet().where((d) => d >= 1 && d <= 7);
+    for (final day in days) {
+      for (int i = 0; i < medication.reminderTimes.length; i++) {
+        final time = medication.reminderTimes[i];
+        await _notificationService.scheduleWeeklyMedicationReminder(
+          id: _notificationId(medication.id!, day, i),
+          medicineName: medication.name,
+          dosage: medication.dosage,
+          weekday: day,
+          hour: time.hour,
+          minute: time.minute,
+        );
+      }
+    }
   }
 }

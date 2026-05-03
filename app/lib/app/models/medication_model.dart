@@ -6,6 +6,7 @@ class Medication {
   final String type; // Tablet, Capsule, Syrup, etc.
   final String dosage; // e.g., "10 mg"
   final String frequency; // e.g., "Twice daily"
+  final List<int> daysOfWeek; // DateTime weekday values: 1 (Mon) to 7 (Sun)
   final List<TimeOfDay> reminderTimes;
   final DateTime startDate;
   final DateTime? endDate;
@@ -18,6 +19,7 @@ class Medication {
     required this.type,
     required this.dosage,
     required this.frequency,
+    required this.daysOfWeek,
     required this.reminderTimes,
     required this.startDate,
     this.endDate,
@@ -39,12 +41,31 @@ class Medication {
       }).toList();
     }
 
+    List<int> days = [1, 2, 3, 4, 5, 6, 7];
+    final rawDays = map['days_of_week'];
+    if (rawDays != null && rawDays.toString().trim().isNotEmpty) {
+      days =
+          rawDays
+              .toString()
+              .split(',')
+              .map((d) => int.tryParse(d.trim()))
+              .whereType<int>()
+              .where((d) => d >= 1 && d <= 7)
+              .toSet()
+              .toList()
+            ..sort();
+      if (days.isEmpty) {
+        days = [1, 2, 3, 4, 5, 6, 7];
+      }
+    }
+
     return Medication(
       id: map['id'],
       name: map['name'] ?? '',
       type: map['type'] ?? 'Tablet',
       dosage: map['dosage'] ?? '',
       frequency: map['frequency'] ?? 'Once daily',
+      daysOfWeek: days,
       reminderTimes: times,
       startDate: DateTime.parse(map['start_date']),
       endDate: map['end_date'] != null ? DateTime.parse(map['end_date']) : null,
@@ -60,9 +81,12 @@ class Medication {
       'type': type,
       'dosage': dosage,
       'frequency': frequency,
+      'days_of_week': daysOfWeek.join(','),
       'reminder_times': reminderTimes
-          .map((t) =>
-              '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}')
+          .map(
+            (t) =>
+                '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}',
+          )
           .join(','),
       'start_date': startDate.toIso8601String(),
       'end_date': endDate?.toIso8601String(),
@@ -77,6 +101,7 @@ class Medication {
     String? type,
     String? dosage,
     String? frequency,
+    List<int>? daysOfWeek,
     List<TimeOfDay>? reminderTimes,
     DateTime? startDate,
     DateTime? endDate,
@@ -89,6 +114,7 @@ class Medication {
       type: type ?? this.type,
       dosage: dosage ?? this.dosage,
       frequency: frequency ?? this.frequency,
+      daysOfWeek: daysOfWeek ?? this.daysOfWeek,
       reminderTimes: reminderTimes ?? this.reminderTimes,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
@@ -98,11 +124,17 @@ class Medication {
   }
 
   String get formattedReminderTimes {
-    return reminderTimes.map((t) {
-      final hour = t.hourOfPeriod == 0 ? 12 : t.hourOfPeriod;
-      final period = t.period == DayPeriod.am ? 'AM' : 'PM';
-      return '${hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')} $period';
-    }).join(', ');
+    return reminderTimes
+        .map((t) {
+          final hour = t.hourOfPeriod == 0 ? 12 : t.hourOfPeriod;
+          final period = t.period == DayPeriod.am ? 'AM' : 'PM';
+          return '${hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')} $period';
+        })
+        .join(', ');
+  }
+
+  bool isScheduledOn(DateTime date) {
+    return daysOfWeek.contains(date.weekday);
   }
 }
 

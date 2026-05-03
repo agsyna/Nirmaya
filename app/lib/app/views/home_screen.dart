@@ -10,6 +10,7 @@ import 'medications_screen.dart';
 import 'login_screen.dart';
 import 'emergency_screen.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'nominees_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -18,30 +19,34 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeader(context),
-
-            const SizedBox(height: 10),
-
-            // Floating buttons
-            Transform.translate(
-              offset: const Offset(0, -40),
-              child: _buildNavRow(context),
-            ),
-
-            const SizedBox(height: 10),
-
-            // Audit Logs
-            Padding(
+      drawer: _buildDrawer(context),
+      body: Column(
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(bottom: 50),
+                child: _buildHeader(context),
+              ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: _buildNavRow(context),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Expanded(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _buildAuditLogs(),
+              child: Column(
+                children: [_buildAuditLogs(), const SizedBox(height: 40)],
+              ),
             ),
-
-            const SizedBox(height: 40),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -50,7 +55,7 @@ class HomeScreen extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 50, 20, 80),
+      padding: const EdgeInsets.fromLTRB(20, 50, 20, 40),
       decoration: const BoxDecoration(
         gradient: AppColors.primaryGradient,
         borderRadius: BorderRadius.only(
@@ -101,12 +106,10 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(width: 20),
                         _info("Gender", user?.gender ?? vm.user.gender),
                         const SizedBox(width: 20),
-                        _info(
-                          "Blood",
-                          user?.bloodGroup ?? "—",
-                        ),
+                        _info("Blood", user?.bloodGroup ?? "—"),
                       ],
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -114,7 +117,11 @@ class HomeScreen extends StatelessWidget {
               // RIGHT SIDE
               GestureDetector(
                 onTap: () {
-                  final patientId = user?.patientId ?? vm.user.patientId ?? user?.id ?? vm.user.id;
+                  final patientId =
+                      user?.patientId ??
+                      vm.user.patientId ??
+                      user?.id ??
+                      vm.user.id;
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
@@ -207,10 +214,7 @@ class HomeScreen extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.poppins(
-            color: Colors.white70,
-            fontSize: 11,
-          ),
+          style: GoogleFonts.poppins(color: Colors.white70, fontSize: 11),
         ),
         const SizedBox(height: 4),
         Text(
@@ -274,16 +278,13 @@ class HomeScreen extends StatelessWidget {
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.08),
                   blurRadius: 8,
-                )
+                ),
               ],
             ),
             child: Icon(icon, color: AppColors.primary),
           ),
           const SizedBox(height: 8),
-          Text(
-            label,
-            style: GoogleFonts.poppins(fontSize: 12),
-          ),
+          Text(label, style: GoogleFonts.poppins(fontSize: 12)),
         ],
       ),
     );
@@ -347,7 +348,7 @@ class HomeScreen extends StatelessWidget {
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 6,
-                        )
+                        ),
                       ],
                     ),
                     child: Row(
@@ -368,10 +369,10 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            "${log.doctorName} ${log.action} at ${_formatTime(log.timestamp)}",
+                            "${log.doctorName} ${log.action}ed at ${_formatTime(log.timestamp)}",
                             style: GoogleFonts.poppins(fontSize: 13),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   );
@@ -399,68 +400,128 @@ class HomeScreen extends StatelessWidget {
 
   // ================= DRAWER MENU =================
   void _showDrawerMenu(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 8),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.divider,
-                borderRadius: BorderRadius.circular(2),
+    Scaffold.of(context).openDrawer();
+  }
+
+  Widget _buildDrawer(BuildContext context) {
+    return Drawer(
+      backgroundColor: Colors.white,
+      child: Consumer<AuthProvider>(
+        builder: (context, authProvider, _) {
+          final user = authProvider.user;
+          final vm = context.watch<HomeViewModel>();
+
+          return Column(
+            children: [
+              // Drawer Header
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
+                decoration: const BoxDecoration(
+                  gradient: AppColors.primaryGradient,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CircleAvatar(
+                      radius: 35,
+                      backgroundColor: Colors.white,
+                      child: Icon(
+                        Icons.person,
+                        size: 40,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      user?.name ?? vm.user.name,
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Patient ID: ${(user?.patientId ?? vm.user.patientId ?? user?.id ?? vm.user.id).split('-').first}",
+                      style: GoogleFonts.poppins(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            _menuItem(Icons.person_outline, 'Profile', () {
-              Navigator.pop(ctx);
-            }),
-            _menuItem(Icons.description, 'Medical Records', () {
-              Navigator.pop(ctx);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const RecordsScreen()),
-              );
-            }),
-            _menuItem(Icons.medication, 'Medications', () {
-              Navigator.pop(ctx);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const MedicationsScreen()),
-              );
-            }),
-            _menuItem(Icons.settings, 'Settings', () {
-              Navigator.pop(ctx);
-            }),
-            const Divider(),
-            _menuItem(Icons.logout, 'Logout', () async {
-              Navigator.pop(ctx);
-              await context.read<AuthProvider>().logout();
-              if (context.mounted) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  (route) => false,
-                );
-              }
-            }, color: AppColors.error),
-            const SizedBox(height: 20),
-          ],
-        ),
+              // Menu Items
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    const SizedBox(height: 10),
+                    _menuItem(Icons.person_outline, 'Profile', () {
+                      Navigator.pop(context);
+                    }),
+                    _menuItem(Icons.medication, 'Nominees', () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const NomineesScreen(),
+                        ),
+                      );
+                    }),
+
+                    // _menuItem(Icons.description, 'Medical Records', () {
+                    //   Navigator.pop(context);
+                    //   Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //       builder: (_) => const RecordsScreen(),
+                    //     ),
+                    //   );
+                    // }),
+                    // _menuItem(Icons.medication, 'Medications', () {
+                    //   Navigator.pop(context);
+                    //   Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //       builder: (_) => const MedicationsScreen(),
+                    //     ),
+                    //   );
+                    // }),
+                    _menuItem(Icons.settings, 'Settings', () {
+                      Navigator.pop(context);
+                    }),
+                    const Divider(),
+                    _menuItem(Icons.logout, 'Logout', () async {
+                      Navigator.pop(context);
+                      await context.read<AuthProvider>().logout();
+                      if (context.mounted) {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const LoginScreen(),
+                          ),
+                          (route) => false,
+                        );
+                      }
+                    }, color: AppColors.error),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _menuItem(IconData icon, String label, VoidCallback onTap,
-      {Color? color}) {
+  Widget _menuItem(
+    IconData icon,
+    String label,
+    VoidCallback onTap, {
+    Color? color,
+  }) {
     return ListTile(
       leading: Icon(icon, color: color ?? AppColors.primary),
       title: Text(

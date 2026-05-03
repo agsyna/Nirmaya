@@ -287,7 +287,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
                 // Description
                 Text(
-                  'Describe',
+                  'Description',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,

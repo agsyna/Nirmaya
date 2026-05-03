@@ -3,6 +3,7 @@ class AppConstants {
 
   // API Configuration
   static const String apiBaseUrl = 'https://nirmaya-api.vercel.app/api/v1';
+  // static const String apiBaseUrl = 'https://7t527758-3000.inc1.devtunnels.ms/api/v1';
   static const String aiBaseUrl = 'https://7t527758-8000.inc1.devtunnels.ms'; // Forwarded URL for AI Engine
   
   // Storage Keys
