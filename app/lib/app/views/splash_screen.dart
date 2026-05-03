@@ -5,6 +5,7 @@ import '../../core/services/storage_service.dart';
 import 'onboarding_screen.dart';
 import 'login_screen.dart';
 import 'home_screen.dart';
+import '../../modules/doctor/screens/doctor_home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -87,7 +88,12 @@ class _SplashScreenState extends State<SplashScreen>
     if (!onboardingDone) {
       destination = const OnboardingScreen();
     } else if (isLoggedIn) {
-      destination = const HomeScreen();
+      final user = storage.getUserData();
+      bool isDoctor = false;
+      if (user != null && user.contains('"type":"doctor"')) {
+        isDoctor = true;
+      }
+      destination = isDoctor ? const DoctorHomeScreen() : const HomeScreen();
     } else {
       destination = const LoginScreen();
     }

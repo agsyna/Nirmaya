@@ -7,6 +7,7 @@ import '../widgets/custom_text_field.dart';
 import '../widgets/primary_button.dart';
 import 'signup_screen.dart';
 import 'home_screen.dart';
+import '../../modules/doctor/screens/doctor_home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -61,9 +62,14 @@ class _LoginScreenState extends State<LoginScreen>
     );
 
     if (success && mounted) {
+      final user = authProvider.user;
+      final isDoctor = user?.type == 'doctor';
+      
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(
+          builder: (_) => isDoctor ? const DoctorHomeScreen() : const HomeScreen(),
+        ),
       );
     }
   }

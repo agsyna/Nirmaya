@@ -12,6 +12,10 @@ class User {
   final double? weight;
   final String? patientId;
   final bool? emergencySosEnabled;
+  final String? doctorId;
+  final String? licenseNumber;
+  final String? specialization;
+  final bool? doctorVerified;
 
   User({
     required this.id,
@@ -27,11 +31,16 @@ class User {
     this.weight,
     this.patientId,
     this.emergencySosEnabled,
+    this.doctorId,
+    this.licenseNumber,
+    this.specialization,
+    this.doctorVerified,
   });
 
   factory User.fromLoginJson(Map<String, dynamic> json) {
     final userData = json['user'] ?? {};
     final patientData = json['patient'] ?? {};
+    final doctorData = json['doctor'] ?? {};
 
     return User(
       id: userData['userId'] ?? '',
@@ -47,12 +56,17 @@ class User {
       weight: (patientData['weight'] as num?)?.toDouble(),
       patientId: patientData['patientId'],
       emergencySosEnabled: patientData['emergencySosEnabled'],
+      doctorId: doctorData['doctorId'],
+      licenseNumber: doctorData['licenseNumber'],
+      specialization: doctorData['specialization'],
+      doctorVerified: doctorData['verified'],
     );
   }
 
   factory User.fromProfileJson(Map<String, dynamic> json) {
     final userData = json['user'] ?? {};
     final patientData = json['patient'] ?? {};
+    final doctorData = json['doctor'] ?? {};
 
     return User(
       id: userData['userId'] ?? '',
@@ -68,6 +82,10 @@ class User {
       weight: (patientData['weight'] as num?)?.toDouble(),
       patientId: patientData['patientId'],
       emergencySosEnabled: patientData['emergencySosEnabled'],
+      doctorId: doctorData['doctorId'],
+      licenseNumber: doctorData['licenseNumber'],
+      specialization: doctorData['specialization'],
+      doctorVerified: doctorData['verified'],
     );
   }
 
@@ -85,6 +103,10 @@ class User {
         'weight': weight,
         'patientId': patientId,
         'emergencySosEnabled': emergencySosEnabled,
+        'doctorId': doctorId,
+        'licenseNumber': licenseNumber,
+        'specialization': specialization,
+        'doctorVerified': doctorVerified,
       };
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -102,6 +124,10 @@ class User {
       weight: (json['weight'] as num?)?.toDouble(),
       patientId: json['patientId'],
       emergencySosEnabled: json['emergencySosEnabled'],
+      doctorId: json['doctorId'],
+      licenseNumber: json['licenseNumber'],
+      specialization: json['specialization'],
+      doctorVerified: json['doctorVerified'],
     );
   }
 }

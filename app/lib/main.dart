@@ -12,6 +12,7 @@ import 'app/providers/share_view_model.dart';
 import 'app/providers/report_provider.dart';
 import 'app/providers/medication_provider.dart';
 import 'app/providers/emergency_view_model.dart';
+import 'modules/doctor/provider/doctor_provider.dart';
 import 'app/views/splash_screen.dart';
 
 Future<void> main() async {
@@ -57,6 +58,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ReportProvider()),
         ChangeNotifierProvider(create: (_) => MedicationProvider()),
         ChangeNotifierProvider(create: (_) => EmergencyViewModel()),
+        ChangeNotifierProvider(create: (_) => DoctorProvider()),
       ],
       child: MaterialApp(
         title: 'Nirmaya',
