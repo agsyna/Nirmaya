@@ -17,7 +17,7 @@ class ShareViewModel extends ChangeNotifier {
   Map<String, bool> accessScope = {
     'reports': false,
     'prescriptions': false,
-    'history': false,
+    'health_data': false,
   };
 
   // Max access count

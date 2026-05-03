@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import '../models/share_token_model.dart';
 import '../services/share_token_service.dart';
+import '../services/access_request_service.dart';
 
 class AccessViewModel extends ChangeNotifier {
   final ShareTokenService _shareTokenService = ShareTokenService();
+  final AccessRequestService _accessRequestService = AccessRequestService();
 
   List<ShareToken> _shareTokens = [];
+  List<dynamic> _accessRequests = [];
   bool _isLoading = false;
   String? _errorMessage;
   bool _hasMore = true;
@@ -14,6 +17,7 @@ class AccessViewModel extends ChangeNotifier {
   String? _patientId;
 
   List<ShareToken> get shareTokens => _shareTokens;
+  List<dynamic> get accessRequests => _accessRequests;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get hasMore => _hasMore;
@@ -134,6 +138,124 @@ class AccessViewModel extends ChangeNotifier {
         _shareTokens.insert(0, updatedToken);
       }
 
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // ==================== Get Doctor Access Requests ====================
+  Future<void> loadAccessRequests() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _accessRequests = await _accessRequestService.getAccessRequests();
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  // ==================== Approve Access Request ====================
+  Future<bool> approveAccessRequest({
+    required String requestId,
+    required List<String> scope,
+    required int expiresInMinutes,
+  }) async {
+    _errorMessage = null;
+
+    try {
+      final data = await _accessRequestService.approveRequest(requestId, scope, expiresInMinutes);
+      // Update local state
+      final index = _accessRequests.indexWhere((req) => req['requestId'] == requestId);
+      if (index != -1) {
+        _accessRequests[index] = {
+          ..._accessRequests[index],
+          'status': 'approved',
+          'approvedScope': data['approvedScope'],
+          'expiresAt': data['expiresAt'],
+          'shareTokenId': data['shareTokenId'],
+        };
+      }
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // ==================== Reject Access Request ====================
+  Future<bool> rejectAccessRequest(String requestId) async {
+    _errorMessage = null;
+
+    try {
+      await _accessRequestService.rejectRequest(requestId);
+      final index = _accessRequests.indexWhere((req) => req['requestId'] == requestId);
+      if (index != -1) {
+        _accessRequests[index] = {
+          ..._accessRequests[index],
+          'status': 'rejected',
+        };
+      }
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // ==================== Update Access Request ====================
+  Future<bool> updateAccessRequest({
+    required String requestId,
+    required List<String> scope,
+    required int expiresInMinutes,
+  }) async {
+    _errorMessage = null;
+
+    try {
+      final data = await _accessRequestService.updateRequest(requestId, scope, expiresInMinutes);
+      final index = _accessRequests.indexWhere((req) => req['requestId'] == requestId);
+      if (index != -1) {
+        _accessRequests[index] = {
+          ..._accessRequests[index],
+          'approvedScope': data['approvedScope'],
+          'expiresAt': data['expiresAt'],
+          'shareTokenId': data['shareTokenId'],
+        };
+      }
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // ==================== Revoke Access Request ====================
+  Future<bool> revokeAccessRequest(String requestId) async {
+    _errorMessage = null;
+
+    try {
+      await _accessRequestService.revokeRequest(requestId);
+      final index = _accessRequests.indexWhere((req) => req['requestId'] == requestId);
+      if (index != -1) {
+        _accessRequests[index] = {
+          ..._accessRequests[index],
+          'status': 'revoked',
+        };
+      }
       notifyListeners();
       return true;
     } catch (e) {
