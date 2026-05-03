@@ -57,6 +57,10 @@ class Report {
         'createdAt': createdAt,
       };
 
+  String? get aiReportId => metadata?['aiReportId'];
+  Map<String, dynamic>? get extractedData => metadata?['extractedData'];
+  String? get overallHealthRisk => metadata?['overallHealthRisk'];
+
   String get typeLabel {
     switch (type) {
       case 'report':
