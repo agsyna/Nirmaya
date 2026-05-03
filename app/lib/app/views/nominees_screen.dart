@@ -39,15 +39,15 @@ class _NomineesScreenState extends State<NomineesScreen> {
       appBar: CustomAppBar(
         title: 'Nominees',
         onBackPressed: () => Navigator.pop(context),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: GestureDetector(
-              onTap: () => _showNomineeSheet(),
-              child: const Icon(Icons.add, color: Colors.white, size: 28),
-            ),
-          ),
-        ],
+        // actions: [
+        //   Padding(
+        //     padding: const EdgeInsets.only(right: 12),
+        //     child: GestureDetector(
+        //       onTap: () => _showNomineeSheet(),
+        //       child: const Icon(Icons.add, color: Colors.white, size: 28),
+        //     ),
+        //   ),
+        // ],
       ),
       body: Consumer<NomineeProvider>(
         builder: (context, provider, _) {
@@ -307,6 +307,7 @@ class _NomineeFormSheetState extends State<_NomineeFormSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameCtrl;
   late final TextEditingController _emailCtrl;
+  late final TextEditingController _phoneCtrl;
   bool _submitting = false;
 
   bool get _isEditing => widget.existing != null;
@@ -316,12 +317,14 @@ class _NomineeFormSheetState extends State<_NomineeFormSheet> {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.existing?.name ?? '');
     _emailCtrl = TextEditingController(text: widget.existing?.email ?? '');
+    _phoneCtrl = TextEditingController(text: widget.existing?.phone ?? '');
   }
 
   @override
   void dispose() {
     _nameCtrl.dispose();
     _emailCtrl.dispose();
+    _phoneCtrl.dispose();
     super.dispose();
   }
 
@@ -373,11 +376,13 @@ class _NomineeFormSheetState extends State<_NomineeFormSheet> {
         id: widget.existing!.id,
         name: _nameCtrl.text.trim(),
         email: _emailCtrl.text.trim(),
+        phone: _phoneCtrl.text.trim(),
       );
     } else {
       success = await provider.addNominee(
         name: _nameCtrl.text.trim(),
         email: _emailCtrl.text.trim(),
+        phone: _phoneCtrl.text.trim(),
       );
     }
 
@@ -483,6 +488,23 @@ class _NomineeFormSheetState extends State<_NomineeFormSheet> {
                 final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
                 if (!emailRegex.hasMatch(v.trim())) {
                   return 'Enter a valid email address';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 28),
+            TextFormField(
+              controller: _phoneCtrl,
+              keyboardType: TextInputType.phone,
+              decoration: _inputDecoration(
+                'Phone Number',
+                Icons.phone_outlined,
+              ),
+              validator: (v) {
+                if (v == null || v.trim().isEmpty) return 'Phone number is required';
+                final phoneRegex = RegExp(r'^\+?[0-9]{7,15}$');
+                if (!phoneRegex.hasMatch(v.trim())) {
+                  return 'Enter a valid phone number';
                 }
                 return null;
               },

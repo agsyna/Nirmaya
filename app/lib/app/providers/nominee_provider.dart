@@ -31,13 +31,13 @@ class NomineeProvider extends ChangeNotifier {
   }
 
   // ==================== Create ====================
-  Future<bool> addNominee({required String name, required String email}) async {
+  Future<bool> addNominee({required String name, required String email, required String phone}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final nominee = await _service.createNominee(name: name, email: email);
+      final nominee = await _service.createNominee(name: name, email: email, phone: phone);
       _nominees = [..._nominees, nominee];
       _isLoading = false;
       notifyListeners();
@@ -55,6 +55,8 @@ class NomineeProvider extends ChangeNotifier {
     required String id,
     required String name,
     required String email,
+    required String phone,
+    
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -65,6 +67,7 @@ class NomineeProvider extends ChangeNotifier {
         id: id,
         name: name,
         email: email,
+        phone: phone,
       );
       _nominees = _nominees.map((n) => n.id == id ? updated : n).toList();
       _isLoading = false;

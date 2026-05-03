@@ -50,13 +50,15 @@ class PatientService {
   Future<Nominee> createNominee({
     required String name,
     required String email,
+    required String phone,
   }) async {
     final response = await _api.post(
       '/patient/nominees',
-      data: {'name': name, 'email': email},
+      data: {'name': name, 'email': email, 'phone': phone},
     );
     final data = response.data;
     if (data['status'] == 'success') {
+      debugPrint('Created nominee: ${data['data']}');
       return Nominee.fromJson(data['data']);
     }
     throw Exception(data['message'] ?? 'Failed to create nominee');
@@ -66,10 +68,12 @@ class PatientService {
     required String id,
     String? name,
     String? email,
+    String? phone,
   }) async {
     final body = <String, dynamic>{};
     if (name != null) body['name'] = name;
     if (email != null) body['email'] = email;
+    if (phone != null) body['phone'] = phone;
 
     final response = await _api.put('/patient/nominees/$id', data: body);
     final data = response.data;
