@@ -178,13 +178,13 @@ class _AddReportScreenState extends State<AddReportScreen> {
               const SizedBox(height: 18),
 
               // Privacy
-              Text('Privacy', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500)),
-              const SizedBox(height: 8),
-              Row(children: [
-                _privacyChip('private', Icons.lock_outline, 'Private'),
-                const SizedBox(width: 12),
-                _privacyChip('shared', Icons.public, 'Shared'),
-              ]),
+              // Text('Privacy', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500)),
+              // const SizedBox(height: 8),
+              // Row(children: [
+              //   _privacyChip('private', Icons.lock_outline, 'Private'),
+              //   const SizedBox(width: 12),
+              //   _privacyChip('shared', Icons.public, 'Shared'),
+              // ]),
               const SizedBox(height: 28),
 
               Consumer<ReportProvider>(builder: (context, p, _) => PrimaryButton(text: 'Upload Report', icon: Icons.cloud_upload, isLoading: p.isUploading, onPressed: _upload)),
