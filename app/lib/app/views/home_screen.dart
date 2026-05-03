@@ -104,7 +104,7 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         _info("Age", "${user?.age ?? vm.user.age} yrs"),
                         const SizedBox(width: 20),
-                        _info("Gender", user?.gender ?? vm.user.gender),
+                        _info("Gender", _capitalize(user?.gender ?? vm.user.gender)),
                         const SizedBox(width: 20),
                         _info("Blood", user?.bloodGroup ?? "—"),
                       ],
@@ -205,6 +205,12 @@ class HomeScreen extends StatelessWidget {
         },
       ),
     );
+  }
+
+  // ================= HELPERS =================
+  String _capitalize(String value) {
+    if (value.isEmpty) return value;
+    return value[0].toUpperCase() + value.substring(1);
   }
 
   // ================= INFO ITEM =================
