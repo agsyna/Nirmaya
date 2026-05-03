@@ -33,6 +33,16 @@ class ShareToken {
   bool get isLimitExceeded => accessCount >= maxAccessCount;
   int get accessRemaining => (maxAccessCount - accessCount).clamp(0, maxAccessCount);
   bool get isValid => !revoked && !isExpired && !isLimitExceeded && status == 'active';
+  
+  List<String> get scope => accessScope;
+  
+  int get daysRemaining {
+    final now = DateTime.now();
+    if (isExpired) return 0;
+    return expiresAt.difference(now).inDays;
+  }
+  
+  String get accessLevel => createdBy ?? 'doctor';
 
   factory ShareToken.fromJson(Map<String, dynamic> json) {
     return ShareToken(

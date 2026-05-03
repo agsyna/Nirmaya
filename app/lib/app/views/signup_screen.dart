@@ -252,10 +252,15 @@ class _SignupScreenState extends State<SignupScreen> {
         const SizedBox(height: 18),
         CustomTextField(
           controller: _phoneController,
-          label: 'Phone (Optional)',
+          label: 'Phone ',
           hint: '+91XXXXXXXXXX',
           prefixIcon: Icons.phone_outlined,
           keyboardType: TextInputType.phone,
+          validator: (value) {
+            if (value == null || value.isEmpty) return 'Please enter your phone number';
+            if (value.length < 10) return 'Please enter a valid phone number';
+            return null;
+          },
         ),
 
         const SizedBox(height: 24),
@@ -458,10 +463,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 hint: 'ft',
                 prefixIcon: Icons.height,
                 keyboardType: TextInputType.number,
-                suffixIcon: Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: Text('ft', style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textSecondary)),
-                ),
+                // suffixIcon: Padding(
+                //   padding: const EdgeInsets.only(right: 12),
+                //   child: Text('ft', style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textSecondary)),
+                // ),
               ),
             ),
             const SizedBox(width: 12),
@@ -472,10 +477,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 hint: 'in',
                 prefixIcon: Icons.straighten,
                 keyboardType: TextInputType.number,
-                suffixIcon: Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: Text('in', style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textSecondary)),
-                ),
+                //suffixIcon: Padding(
+                  //padding: const EdgeInsets.only(right: 12),
+                  //child: Text('in', style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textSecondary)),
+                //),
               ),
             ),
           ],

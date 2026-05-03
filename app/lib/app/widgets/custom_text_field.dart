@@ -59,6 +59,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           maxLines: widget.isPassword ? 1 : widget.maxLines,
           enabled: widget.enabled,
           onChanged: widget.onChanged,
+          maxLength: widget.keyboardType==TextInputType.phone?10:null,
           style: GoogleFonts.poppins(
             fontSize: 14,
             color: AppColors.textPrimary,
