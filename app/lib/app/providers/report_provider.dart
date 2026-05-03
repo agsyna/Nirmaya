@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/report_model.dart';
 import '../services/report_service.dart';
+import '../services/ai_service.dart';
 import '../../core/services/api_service.dart';
+import '../../core/services/storage_service.dart';
 
 class ReportProvider extends ChangeNotifier {
   final ReportService _reportService = ReportService();
@@ -102,7 +104,7 @@ class ReportProvider extends ChangeNotifier {
       debugPrint('File uploaded, path: $path');
 
       // Step 2: Finalize upload with metadata
-      final report = await _reportService.finalizeUpload(
+      var report = await _reportService.finalizeUpload(
         path: path,
         type: type,
         title: title,
@@ -110,8 +112,47 @@ class ReportProvider extends ChangeNotifier {
         privacy: privacy,
       );
 
-      // Add to list
+      // Add to list immediately so user sees it
       _reports.insert(0, report);
+      notifyListeners();
+
+      // Step 3: Run AI Analysis in the background (Wait for it so we can update the UI)
+      try {
+        final patientId = StorageService().getPatientId() ?? 'unknown_patient';
+        debugPrint('Starting AI analysis for $fileName...');
+        
+        final aiResponse = await AIService().analyzeReport(
+          fileBytes: fileBytes,
+          fileName: fileName,
+          patientId: patientId,
+          reportType: type == 'prescription' ? 'prescription' : 'lab_report',
+        );
+
+        debugPrint('AI Analysis Complete! Updating Main DB...');
+        // Step 4: Update the report in Vercel with AI data
+        await _reportService.updateReport(
+          report.recordId,
+          aiSummary: aiResponse['summary'],
+          metadata: {
+            'aiReportId': aiResponse['report_id'],
+            'extractedData': aiResponse['extracted_data'],
+            'overallHealthRisk': aiResponse['extracted_data']?['overall_health_risk'],
+          },
+        );
+
+        // Fetch the updated report to refresh the UI
+        final updatedReport = await _reportService.getReportDetail(report.recordId);
+        final index = _reports.indexWhere((r) => r.recordId == report.recordId);
+        if (index != -1) {
+          _reports[index] = updatedReport;
+        }
+
+      } catch (aiError) {
+        debugPrint('AI Processing Error (Upload succeeded though): $aiError');
+        // We don't throw here because the main upload succeeded.
+        // The user will just not have an AI summary for now.
+      }
+
       _isUploading = false;
       notifyListeners();
       return true;

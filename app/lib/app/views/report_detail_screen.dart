@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_colors.dart';
 import '../providers/report_provider.dart';
 import '../widgets/custom_app_bar.dart';
+import 'chat_with_report_screen.dart';
 
 class ReportDetailScreen extends StatefulWidget {
   final String reportId;
@@ -129,12 +130,118 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                           ),
                         ),
                       ],
+                      
+                      // Extracted Data section
+                      _buildExtractedData(),
 
                       // File Viewer
                       _buildFileViewer(),
                     ],
                   ),
                 ),
+      floatingActionButton: _reportData?['metadata']?['aiReportId'] != null 
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChatWithReportScreen(
+                      reportId: _reportData!['metadata']['aiReportId'],
+                      reportTitle: _reportData!['title'] ?? 'Report',
+                    ),
+                  ),
+                );
+              },
+              backgroundColor: AppColors.primary,
+              icon: const Icon(Icons.chat_bubble_outline, color: Colors.white),
+              label: Text(
+                'Chat with Report',
+                style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600),
+              ),
+            )
+          : null,
+    );
+  }
+
+  Widget _buildExtractedData() {
+    final metadata = _reportData?['metadata'];
+    if (metadata == null || metadata['extractedData'] == null) return const SizedBox.shrink();
+    
+    final details = metadata['extractedData']['details'] as Map<String, dynamic>?;
+    if (details == null || details.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Lab Parameters',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: details.length,
+            itemBuilder: (context, index) {
+              final key = details.keys.elementAt(index);
+              final param = details[key];
+              
+              final status = param['status'] ?? 'Unknown';
+              Color statusColor = AppColors.textSecondary;
+              if (status.toString().toUpperCase().contains('CRITICAL')) {
+                statusColor = AppColors.error;
+              } else if (status.toString().toUpperCase() == 'HIGH' || status.toString().toUpperCase() == 'LOW') {
+                statusColor = Colors.orange;
+              } else if (status.toString().toUpperCase() == 'NORMAL') {
+                statusColor = AppColors.success;
+              }
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.divider),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        key,
+                        style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '${param['value']} ${param['unit'] ?? ''}',
+                            style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600),
+                          ),
+                          Text(
+                            status,
+                            style: GoogleFonts.poppins(fontSize: 11, color: statusColor, fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 
